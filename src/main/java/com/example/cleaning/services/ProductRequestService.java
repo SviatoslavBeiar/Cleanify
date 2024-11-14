@@ -16,7 +16,10 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,7 +50,15 @@ public class ProductRequestService {
         return !productRequestRepository.existsByProductIdAndSelectedDateAndSelectedTimeAndStatus(
                 productId, date, time, RequestStatus.APPROVED);
     }
-
+    public double getCleaningDuration(int apartmentSize) {
+        Map<Integer, Double> durationMap = new HashMap<>();
+        durationMap.put(1, 1.0);
+        durationMap.put(2, 1.5);
+        durationMap.put(3, 2.0);
+        durationMap.put(4, 2.5);
+        durationMap.put(5, 3.0);
+        return durationMap.getOrDefault(apartmentSize, 1.0);
+    }
     public void createRequest(Long productId, String date, String time, Principal principal) throws TimeSlotAlreadyBookedException {
         User user = userRepository.findByEmail(principal.getName());
         Product product = productRepository.findById(productId).orElse(null);
@@ -181,5 +192,141 @@ public class ProductRequestService {
                 .collect(Collectors.toList());
     }
 
+
+    public boolean isTimeWindowAvailable(Long productId, LocalDate date, LocalTime startTime, LocalTime endTime) {
+        int totalTeams = 5; // Total available teams
+
+        // Get all approved requests for the date
+        List<ProductRequest> requests = productRequestRepository.findAllByProductIdAndSelectedDateAndStatus(
+                productId, date, RequestStatus.APPROVED);
+
+        // Map to store the number of teams booked at each time slot
+        Map<LocalTime, Integer> timeSlotBookings = new HashMap<>();
+
+        // Mark booked time slots
+        for (ProductRequest request : requests) {
+            LocalTime reqStartTime = request.getSelectedTime();
+            LocalTime reqEndTime = request.getEndTime();
+            for (LocalTime time = reqStartTime; !time.isAfter(reqEndTime.minusHours(1)); time = time.plusHours(1)) {
+                timeSlotBookings.put(time, timeSlotBookings.getOrDefault(time, 0) + 1);
+            }
+        }
+
+        // Check availability for the requested time window
+        for (LocalTime time = startTime; !time.isAfter(endTime.minusHours(1)); time = time.plusHours(1)) {
+            int bookings = timeSlotBookings.getOrDefault(time, 0);
+            if (bookings >= totalTeams) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    public void createRequest(Long productId, String date, String timeWindow, String apartmentSizeStr, Principal principal) throws TimeSlotAlreadyBookedException {
+        User user = userRepository.findByEmail(principal.getName());
+        Product product = productRepository.findById(productId).orElse(null);
+
+        if (user != null && product != null) {
+            LocalDate selectedDate = LocalDate.parse(date);
+            String[] times = timeWindow.split("-");
+            LocalTime selectedTime = LocalTime.parse(times[0], DateTimeFormatter.ofPattern("HH:mm"));
+            LocalTime endTime = LocalTime.parse(times[1], DateTimeFormatter.ofPattern("HH:mm"));
+            int apartmentSize = Integer.parseInt(apartmentSizeStr);
+            double duration = getCleaningDuration(apartmentSize);
+
+            if (isTimeWindowAvailable(productId, selectedDate, selectedTime, endTime)) {
+                ProductRequest request = new ProductRequest();
+                request.setUser(user);
+                request.setProduct(product);
+                request.setSelectedDate(selectedDate);
+                request.setSelectedTime(selectedTime);
+                request.setEndTime(endTime);
+                request.setApartmentSize(apartmentSize);
+
+                productRequestRepository.save(request);
+            } else {
+                throw new TimeSlotAlreadyBookedException("The selected time window is not available.");
+            }
+        }
+    }
+    public List<String> getAvailableTimeWindows(Long productId, LocalDate date, double duration) {
+        int totalTeams = 5; // Total available teams
+
+        // Get all approved requests for the date
+        List<ProductRequest> requests = productRequestRepository.findAllByProductIdAndSelectedDateAndStatus(
+                productId, date, RequestStatus.APPROVED);
+
+        // Map to store the number of teams booked at each time slot
+        Map<LocalTime, Integer> timeSlotBookings = new HashMap<>();
+
+        // Mark booked time slots
+        for (ProductRequest request : requests) {
+            LocalTime reqStartTime = request.getSelectedTime();
+            LocalTime reqEndTime = request.getEndTime();
+            for (LocalTime time = reqStartTime; !time.isAfter(reqEndTime.minusHours(1)); time = time.plusHours(1)) {
+                timeSlotBookings.put(time, timeSlotBookings.getOrDefault(time, 0) + 1);
+            }
+        }
+
+        // Generate all possible start times
+        LocalTime startTime = LocalTime.of(10, 0);
+        LocalTime endTime = LocalTime.of(22, 0);
+        List<LocalTime> allStartTimes = new ArrayList<>();
+        for (LocalTime time = startTime; !time.isAfter(endTime.minusMinutes((long)(duration * 60) - 60)); time = time.plusHours(1)) {
+            allStartTimes.add(time);
+        }
+
+        // Check availability for each time window
+        List<String> availableTimeWindows = new ArrayList<>();
+        for (LocalTime time : allStartTimes) {
+            boolean isAvailable = true;
+            for (LocalTime t = time; !t.isAfter(time.plusMinutes((long)(duration * 60) - 60)); t = t.plusHours(1)) {
+                int bookings = timeSlotBookings.getOrDefault(t, 0);
+                if (bookings >= totalTeams) {
+                    isAvailable = false;
+                    break;
+                }
+            }
+            if (isAvailable) {
+                String timeWindow = time.format(DateTimeFormatter.ofPattern("HH:mm")) + "-" +
+                        time.plusMinutes((long)(duration * 60)).format(DateTimeFormatter.ofPattern("HH:mm"));
+                availableTimeWindows.add(timeWindow);
+            }
+        }
+        return availableTimeWindows;
+    }
+
+    // В ProductRequestService.java
+
+    public int getAvailableTeams(Long productId, LocalDate date, LocalTime startTime, LocalTime endTime) {
+        int totalTeams = 5; // Общее количество команд
+
+        // Получаем все утвержденные запросы на эту дату
+        List<ProductRequest> requests = productRequestRepository.findAllByProductIdAndSelectedDateAndStatus(
+                productId, date, RequestStatus.APPROVED);
+
+        // Счетчик занятых команд в заданное время
+        int maxTeamsBooked = 0;
+
+        // Проверяем количество занятых команд в каждом часовом слоте внутри заданного временного окна
+        for (LocalTime time = startTime; !time.isAfter(endTime.minusHours(1)); time = time.plusHours(1)) {
+            int teamsBookedAtTime = 0;
+            for (ProductRequest request : requests) {
+                LocalTime reqStartTime = request.getSelectedTime();
+                LocalTime reqEndTime = request.getEndTime();
+
+                // Проверяем, пересекается ли время
+                if (!(reqEndTime.isBefore(time.plusHours(1)) || reqStartTime.isAfter(time))) {
+                    teamsBookedAtTime++;
+                }
+            }
+            if (teamsBookedAtTime > maxTeamsBooked) {
+                maxTeamsBooked = teamsBookedAtTime;
+            }
+        }
+
+        return totalTeams - maxTeamsBooked;
+    }
 
 }

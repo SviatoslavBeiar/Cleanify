@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Controller
@@ -37,25 +39,25 @@ public class ProductController {
 //    }
 
 
-    @PostMapping("/product/{id}/request")
-    public String createProductRequest(@PathVariable Long id,
-                                       @RequestParam("selectedDate") String selectedDate,
-                                       @RequestParam("selectedTime") String selectedTime,
-                                       Principal principal,
-                                       Model model) {
-        try {
-            productRequestService.createRequest(id, selectedDate, selectedTime, principal);
-            return "redirect:/product/" + id + "?requestSuccess";
-        } catch (TimeSlotAlreadyBookedException e) {
-            model.addAttribute("errorMessage", e.getMessage());
-            // Добавьте необходимые атрибуты модели для корректного отображения страницы
-            model.addAttribute("product", productService.getProductById(id));
-            model.addAttribute("user", userService.getUserByPrincipal(principal));
-            model.addAttribute("images", productService.getProductById(id).getImages());
-            // Верните имя шаблона страницы продукта
-            return "product-info";
-        }
-    }
+//    @PostMapping("/product/{id}/request")
+//    public String createProductRequest(@PathVariable Long id,
+//                                       @RequestParam("selectedDate") String selectedDate,
+//                                       @RequestParam("selectedTime") String selectedTime,
+//                                       Principal principal,
+//                                       Model model) {
+//        try {
+//            productRequestService.createRequest(id, selectedDate, selectedTime, principal);
+//            return "redirect:/product/" + id + "?requestSuccess";
+//        } catch (TimeSlotAlreadyBookedException e) {
+//            model.addAttribute("errorMessage", e.getMessage());
+//            // Добавьте необходимые атрибуты модели для корректного отображения страницы
+//            model.addAttribute("product", productService.getProductById(id));
+//            model.addAttribute("user", userService.getUserByPrincipal(principal));
+//            model.addAttribute("images", productService.getProductById(id).getImages());
+//            // Верните имя шаблона страницы продукта
+//            return "product-info";
+//        }
+//    }
 
 
 
@@ -121,4 +123,49 @@ public class ProductController {
         model.addAttribute("products", user.getProducts());
         return "my-products";
     }
+
+    // In ProductController.java
+
+    @GetMapping("/product/{id}/available-time-windows")
+    @ResponseBody
+    public List<String> getAvailableTimeWindows(@PathVariable Long id,
+                                                @RequestParam String date,
+                                                @RequestParam double duration) {
+        LocalDate selectedDate = LocalDate.parse(date);
+        return productRequestService.getAvailableTimeWindows(id, selectedDate, duration);
+    }
+
+    @PostMapping("/product/{id}/request")
+    public String createProductRequest(@PathVariable Long id,
+                                       @RequestParam("selectedDate") String selectedDate,
+                                       @RequestParam("selectedTimeWindow") String selectedTimeWindow,
+                                       @RequestParam("apartmentSize") String apartmentSize,
+                                       Principal principal,
+                                       Model model) {
+        try {
+            productRequestService.createRequest(id, selectedDate, selectedTimeWindow, apartmentSize, principal);
+            return "redirect:/product/" + id + "?requestSuccess";
+        } catch (TimeSlotAlreadyBookedException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("product", productService.getProductById(id));
+            model.addAttribute("user", userService.getUserByPrincipal(principal));
+            model.addAttribute("images", productService.getProductById(id).getImages());
+            return "product-info";
+        }
+    }
+// В ProductController.java
+
+    @GetMapping("/product/{id}/available-teams")
+    @ResponseBody
+    public int getAvailableTeams(@PathVariable Long id,
+                                 @RequestParam String date,
+                                 @RequestParam String timeWindow) {
+        LocalDate selectedDate = LocalDate.parse(date);
+        String[] times = timeWindow.split("-");
+        LocalTime startTime = LocalTime.parse(times[0], DateTimeFormatter.ofPattern("HH:mm"));
+        LocalTime endTime = LocalTime.parse(times[1], DateTimeFormatter.ofPattern("HH:mm"));
+
+        return productRequestService.getAvailableTeams(id, selectedDate, startTime, endTime);
+    }
+
 }

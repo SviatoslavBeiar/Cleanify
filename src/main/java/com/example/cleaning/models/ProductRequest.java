@@ -51,4 +51,15 @@ public class ProductRequest {
     public String getFormattedDateOfCreated() {
         return dateOfCreated.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
     }
+    public String getFormattedEndTime() {
+        return endTime != null ? endTime.format(DateTimeFormatter.ofPattern("HH:mm")) : "N/A";
+    }
+    // In ProductRequest.java
+    private LocalTime endTime;
+    private int apartmentSize;
+
+    // Getter and Setter for endTime and apartmentSize
+
+
+
 }

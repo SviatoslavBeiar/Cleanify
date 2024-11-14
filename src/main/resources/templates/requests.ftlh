@@ -11,7 +11,8 @@
                 <th>Product ID</th>
                 <th>Product Name</th>
                 <th>Selected Date</th>
-                <th>Selected time</th>
+                <th>Selected Time</th>
+                <th>End Time</th> <!-- Добавлено -->
                 <th>Request Creation Date</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -27,6 +28,7 @@
                     <td>${request.product.title}</td>
                     <td>${request.formattedSelectedDate}</td>
                     <td>${request.formattedSelectedTime}</td>
+                    <td>${request.formattedEndTime}</td> <!-- Добавлено -->
                     <td>${request.formattedDateOfCreated}</td>
                     <td>
                         <#if request.status == "PENDING">
@@ -59,6 +61,7 @@
 
     <!-- Additional styles for improved appearance -->
     <style>
+        /* Ваши существующие стили */
         /* Increase header size */
         h2 {
             font-size: 2rem;
