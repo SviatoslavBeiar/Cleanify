@@ -1,0 +1,88 @@
+/* Remove bottom margin from last comment list item */
+.media:last-child {
+    margin-bottom: 0;
+}
+
+/* Styles for the comment form card */
+.card-header {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+/* Semi-transparent container for text */
+.text-container {
+    background-color: rgba(255, 255, 255, 0.8); /* White with transparency */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Light shadow for emphasis */
+    border-radius: 10px; /* Rounded edges */
+}
+
+/* Increase padding within the container */
+.text-container p, .text-container h1, .text-container h3 {
+    margin: 10px 0;
+}
+
+/* Style for the request form */
+.request-form h5 {
+    margin-bottom: 15px;
+}
+
+/* Style for time slots */
+.time-slots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.time-slot {
+    position: relative;
+}
+
+.time-slot input[type="radio"] {
+    display: none;
+}
+
+.time-slot label {
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: #f0f0f0;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.time-slot input[type="radio"]:checked + label {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: #fff;
+}
+
+/* Style for booked time slots */
+.time-slot label.booked {
+    background-color: #ccc;
+    border-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.time-slot input[type="radio"]:disabled + label {
+    background-color: #ccc;
+    border-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+}
+
+/* Style for error message */
+.alert-danger {
+    margin-top: 15px;
+}
+
+/* Animation for time slots */
+.fade-in {
+    animation: fadeInAnimation 0.5s ease-in-out;
+}
+
+@keyframes fadeInAnimation {
+    0% { opacity: 0; transform: translateY(-10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}

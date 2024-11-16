@@ -223,7 +223,7 @@ public class ProductRequestService {
     }
 
 
-    public void createRequest(Long productId, String date, String timeWindow, String apartmentSizeStr, Principal principal) throws TimeSlotAlreadyBookedException {
+    public void createRequest(Long productId, String date, String timeWindow, String apartmentSizeStr,String address, Principal principal) throws TimeSlotAlreadyBookedException {
         User user = userRepository.findByEmail(principal.getName());
         Product product = productRepository.findById(productId).orElse(null);
 
@@ -243,7 +243,7 @@ public class ProductRequestService {
                 request.setSelectedTime(selectedTime);
                 request.setEndTime(endTime);
                 request.setApartmentSize(apartmentSize);
-
+                request.setAddress(address);
                 productRequestRepository.save(request);
             } else {
                 throw new TimeSlotAlreadyBookedException("The selected time window is not available.");

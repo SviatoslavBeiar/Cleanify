@@ -58,6 +58,7 @@ public class ProductRequest {
     private LocalTime endTime;
     private int apartmentSize;
 
+    private String address;
     // Getter and Setter for endTime and apartmentSize
 
 

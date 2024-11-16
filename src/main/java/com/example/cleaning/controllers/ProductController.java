@@ -140,10 +140,11 @@ public class ProductController {
                                        @RequestParam("selectedDate") String selectedDate,
                                        @RequestParam("selectedTimeWindow") String selectedTimeWindow,
                                        @RequestParam("apartmentSize") String apartmentSize,
+                                       @RequestParam("address") String address,
                                        Principal principal,
                                        Model model) {
         try {
-            productRequestService.createRequest(id, selectedDate, selectedTimeWindow, apartmentSize, principal);
+            productRequestService.createRequest(id, selectedDate, selectedTimeWindow, apartmentSize, address, principal);
             return "redirect:/product/" + id + "?requestSuccess";
         } catch (TimeSlotAlreadyBookedException e) {
             model.addAttribute("errorMessage", e.getMessage());
