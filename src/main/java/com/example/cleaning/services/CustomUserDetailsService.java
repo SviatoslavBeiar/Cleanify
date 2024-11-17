@@ -1,5 +1,6 @@
 package com.example.cleaning.services;
 
+import com.example.cleaning.models.User;
 import com.example.cleaning.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,6 +15,10 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email);
+        if (user == null || !user.isEnabled()) {
+            throw new UsernameNotFoundException("User not found or not verified");
+        }
+        return user;
     }
 }

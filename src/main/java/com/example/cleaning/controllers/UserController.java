@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
 
@@ -21,7 +22,16 @@ public class UserController {
         model.addAttribute("user", userService.getUserByPrincipal(principal));
         return "login";
     }
-
+    @GetMapping("/verify")
+    public String verifyUser(@RequestParam("code") String code, Model model) {
+        boolean verified = userService.verifyUser(code);
+        if (verified) {
+            model.addAttribute("message", "Email verification successful. You can now log in.");
+        } else {
+            model.addAttribute("message", "Invalid verification code.");
+        }
+        return "verify-result"; // Create a template for this view
+    }
     @GetMapping("/profile")
     public String profile(Principal principal,
                           Model model) {
@@ -40,11 +50,13 @@ public class UserController {
     @PostMapping("/registration")
     public String createUser(User user, Model model) {
         if (!userService.createUser(user)) {
-            model.addAttribute("errorMessage", "Пользователь с email: " + user.getEmail() + " уже существует");
+            model.addAttribute("errorMessage", "A user with email: " + user.getEmail() + " already exists.");
             return "registration";
         }
-        return "redirect:/login";
+        model.addAttribute("successMessage", "Registration successful! Please check your email to verify your account.");
+        return "registration";
     }
+
 
     @GetMapping("/user/{user}")
     public String userInfo(@PathVariable("user") User user, Model model, Principal principal) {

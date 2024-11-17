@@ -21,6 +21,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   //  private final CustomOAuth2UserService customOAuth2UserService;
 
 
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+                .authorizeRequests()
+                .antMatchers("/", "/product/**", "/images/**", "/registration", "/user/**", "/static/**","/verify").permitAll()
+                .antMatchers(HttpMethod.POST, "/product/*/comment").authenticated()
+                .anyRequest().authenticated()
+                .and()
+                .formLogin()
+                .loginPage("/login")
+                .permitAll()
+                .and()
+                .logout()
+                .permitAll()
+                .and()
+                .csrf()
+        ;
+    }
+
 //    @Override
 //    protected void configure(HttpSecurity http) throws Exception {
 //        http
@@ -33,37 +52,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .loginPage("/login")
 //                .permitAll()
 //                .and()
+//                .oauth2Login()
+//                .loginPage("/login")
+//                .userInfoEndpoint()
+//              //  .userService(customOAuth2UserService)
+//                .and()
+//                .defaultSuccessUrl("/")
+//                .and()
 //                .logout()
 //                .permitAll()
 //                .and()
-//                .csrf()
-//        ;
+//                .csrf();
 //    }
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http
-                .authorizeRequests()
-                .antMatchers("/", "/product/**", "/images/**", "/registration", "/user/**", "/static/**").permitAll()
-                .antMatchers(HttpMethod.POST, "/product/*/comment").authenticated()
-                .anyRequest().authenticated()
-                .and()
-                .formLogin()
-                .loginPage("/login")
-                .permitAll()
-                .and()
-                .oauth2Login()
-                .loginPage("/login")
-                .userInfoEndpoint()
-              //  .userService(customOAuth2UserService)
-                .and()
-                .defaultSuccessUrl("/")
-                .and()
-                .logout()
-                .permitAll()
-                .and()
-                .csrf();
-    }
 
 
     @Override

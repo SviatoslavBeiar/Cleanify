@@ -1,7 +1,6 @@
 <#import "blocks/template.ftlh" as t>
 <@t.template user>
     <h1 style="text-align: center">Registration</h1>
-
     <hr>
     <form action="/registration" method="post">
         <div class="form-group">
@@ -23,7 +22,10 @@
         <input type="hidden" name="_csrf" value="${_csrf.token}">
         <button type="submit" style="width: 100%" class="btn btn-dark">Register</button>
     </form>
+
     <#if errorMessage??>
-        <h2 style="color: red">${errorMessage}</h2>
+        <h2 style="color: red; text-align: center;">${errorMessage}</h2>
+    <#elseif successMessage??>
+        <h2 style="color: green; text-align: center;">${successMessage}</h2>
     </#if>
 </@t.template>

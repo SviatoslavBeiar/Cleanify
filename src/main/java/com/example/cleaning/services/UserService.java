@@ -8,11 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
 import java.security.Principal;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,18 +19,48 @@ import java.util.stream.Collectors;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     public boolean createUser(User user) {
         String email = user.getEmail();
         if (userRepository.findByEmail(email) != null) return false;
-        user.setActive(true);
+        user.setActive(false);
+        user.setEnabled(false);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.getRoles().add(Role.ROLE_USER);
+
+        // Generate verification code
+        String verificationCode = UUID.randomUUID().toString();
+        user.setVerificationCode(verificationCode);
+
         log.info("Saving new User with email: {}", email);
         userRepository.save(user);
+
+        // Send verification email
+        String siteURL = "http://localhost:8080"; // Replace with your site's URL
+        String verifyURL = siteURL + "/verify?code=" + verificationCode;
+
+        try {
+            emailService.sendVerificationEmail(user.getEmail(), verifyURL);
+        } catch (MessagingException e) {
+            log.error("Error sending verification email", e);
+            return false;
+        }
+
         return true;
     }
-
+    public boolean verifyUser(String verificationCode) {
+        User user = userRepository.findByVerificationCode(verificationCode);
+        if (user == null) {
+            return false;
+        } else {
+            user.setVerificationCode(null);
+            user.setEnabled(true);
+            user.setActive(true);
+            userRepository.save(user);
+            return true;
+        }
+    }
     public List<User> list() {
         return userRepository.findAll();
     }
