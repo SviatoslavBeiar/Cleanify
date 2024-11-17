@@ -221,8 +221,9 @@
 
     <!-- Подключение Google Maps API -->
     <script async
-            src="https://maps.googleapis.com/maps/api/js?key=&callback=initMap">
+            src="https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&callback=initMap">
     </script>
+
 
 
 

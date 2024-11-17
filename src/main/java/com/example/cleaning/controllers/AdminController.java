@@ -7,6 +7,7 @@ import com.example.cleaning.services.ProductRequestService;
 import com.example.cleaning.services.ProductService;
 import com.example.cleaning.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,6 +28,8 @@ public class AdminController {
     private final UserService userService;
     private final ProductRequestService productRequestService;
     private final ProductService productService;
+    @Value("${google.maps.api.key}")
+    private String googleMapsApiKey;
 /////////////
     @PostMapping("/product/delete/{id}")
         public String deleteProduct(@PathVariable Long id, Principal principal) {
@@ -65,6 +68,7 @@ public class AdminController {
     public String viewRequests(Model model, Principal principal) {
         model.addAttribute("user", userService.getUserByPrincipal(principal));
         model.addAttribute("requests", productRequestService.getAllRequests());
+        model.addAttribute("googleMapsApiKey", googleMapsApiKey);
         return "requests";
     }
     @PostMapping("/admin/user/ban/{id}")

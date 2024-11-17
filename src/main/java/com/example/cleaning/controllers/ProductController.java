@@ -9,6 +9,7 @@ import com.example.cleaning.services.ProductService;
 import com.example.cleaning.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +28,8 @@ public class ProductController {
     private final UserService userService;
     private final CommentService commentService;
     private final ProductRequestService productRequestService;
+    @Value("${google.maps.api.key}")
+    private String googleMapsApiKey;
     // Обработка создания запроса на продукт
 
 //    @PostMapping("/product/{id}/request")
@@ -96,6 +99,7 @@ public class ProductController {
         model.addAttribute("images", product.getImages());
         model.addAttribute("comments", product.getComments());
         model.addAttribute("authorProduct", product.getUser());
+        model.addAttribute("googleMapsApiKey", googleMapsApiKey);
         return "product-info";
     }
     @PostMapping("/product/{id}/comment")

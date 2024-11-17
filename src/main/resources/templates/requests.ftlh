@@ -236,6 +236,6 @@
 
     <!-- Load Google Maps API -->
     <script async defer
-            src="https://maps.googleapis.com/maps/api/js?key=&callback=initMap">
+            src="https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&callback=initMap">
     </script>
 </@t.template>
