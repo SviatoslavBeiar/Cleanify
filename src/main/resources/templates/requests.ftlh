@@ -16,6 +16,8 @@
                 <th>End Time</th>
                 <th>Request Creation Date</th>
                 <th>Status</th>
+                <th>Distance from Base</th>
+                <th>Duration from Base</th>
                 <th>Actions</th>
             </tr>
             </thead>
@@ -41,6 +43,8 @@
                             <span class="badge badge-danger">Rejected</span>
                         </#if>
                     </td>
+                    <td id="distance-${request.id}">Loading...</td>
+                    <td id="duration-${request.id}">Loading...</td>
                     <td>
                         <#if request.status == "PENDING">
                             <form action="/admin/requests/approve/${request.id}" method="post" style="display:inline;">
@@ -59,12 +63,35 @@
             </#list>
             </tbody>
         </table>
+        <!-- Map Legend -->
+        <div id="map-legend" class="map-legend">
+            <h5>Legend</h5>
+            <ul>
+                <li>
+                    <span class="legend-icon" style="background-color: blue;"></span>
+                    Base
+                </li>
+                <li>
+                    <span class="legend-icon" style="background-color: yellow;"></span>
+                    Today's Request
+                </li>
+                <li>
+                    <span class="legend-icon" style="background-color: green;"></span>
+                    Approved Request
+                </li>
+                <li>
+                    <span class="legend-icon" style="background-color: red;"></span>
+                    Rejected Request
+                </li>
+            </ul>
+        </div>
+
 
         <!-- Карта -->
-        <div id="map" style="width: 100%; height: 400px; margin-bottom: 50px; border: 1px solid #ddd; border-radius: 5px;"></div>
+        <div id="map" style="width: 100%; height: 600px; margin-bottom: 50px; border: 1px solid #ddd; border-radius: 5px;"></div>
     </div>
 
-    <!-- Additional styles for improved appearance -->
+    <!-- Дополнительные стили -->
     <style>
         h2 {
             font-size: 2rem;
@@ -114,127 +141,375 @@
         .btn-sm {
             margin: 0 5px;
         }
+        /* Стили для легенды карты */
+        .map-legend {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 15px;
+            margin: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            z-index: 5;
+        }
+
+        .map-legend h5 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .map-legend ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .map-legend li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .legend-icon {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            margin-right: 8px;
+            border-radius: 50%;
+            border: 1px solid #999;
+        }
+
     </style>
 
-    <!-- Address preparation -->
+    <!-- Подготовка данных адресов -->
     <script type="text/javascript">
         var requestData = [
             <#list requests as request>
             {
+                id: "${request.id}",
                 address: "${request.address}",
-                status: "${request.status}"
+                status: "${request.status}",
+                formattedSelectedDate: "${request.formattedSelectedDate}",
+                formattedSelectedTime: "${request.formattedSelectedTime}"
             }<#if request_has_next>,</#if>
             </#list>
         ];
 
-        // Static base locations
+        // Статические базы
         var staticBases = [
             {
-                address: "Ursus",
-                name: "Cleaning Base"
+                address: "Natolin",
+                name: "Cleaning Base Natolin"
             },
             {
-                address: "Gotslaw",
-                name: "Cleaning Base"
+                address: "Wierzbno",
+                name: "Cleaning Base Wierzbno "
             }
         ];
     </script>
 
-    <!-- Map initialization and markers -->
+    <!-- Инициализация карты и Distance Matrix -->
     <script type="text/javascript">
         var map;
+        var distanceService;
+        var geocoder;
+        var baseLocations = []; // Для хранения координат баз
+        var clientLocations = []; // Для хранения координат клиентов
+        var infoWindow = new google.maps.InfoWindow(); // Один общий InfoWindow для полилиний
 
         function initMap() {
-            var geocoder = new google.maps.Geocoder();
+            geocoder = new google.maps.Geocoder();
+            distanceService = new google.maps.DistanceMatrixService();
 
-            // Center map on the first address
-            geocoder.geocode({'address': requestData[0].address}, function(results, status) {
-                if (status === 'OK') {
-                    map = new google.maps.Map(document.getElementById('map'), {
-                        zoom: 10,
-                        center: results[0].geometry.location,
-                        styles: [
-                            {
-                                "featureType": "water",
-                                "stylers": [{"color": "#46bcec"}, {"visibility": "on"}]
-                            },
-                            {
-                                "featureType": "landscape",
-                                "stylers": [{"color": "#f2f2f2"}]
-                            },
-                            {
-                                "featureType": "road",
-                                "stylers": [{"saturation": -100}, {"lightness": 45}]
+            // Геокодируем базы и сохраняем их координаты
+            geocodeBases();
+        }
+
+        function geocodeBases() {
+            var geocodePromises = staticBases.map(function(base) {
+                return new Promise(function(resolve, reject) {
+                    geocoder.geocode({'address': base.address}, function(results, status) {
+                        if (status === 'OK') {
+                            var location = results[0].geometry.location;
+                            base.location = location; // Добавляем координаты в объект базы
+                            baseLocations.push({
+                                name: base.name,
+                                position: location
+                            });
+                            // Маркер баз добавляется позже после инициализации карты
+                            resolve();
+                        } else {
+                            console.error('Geocoding failed for base address: ' + base.address + ' with status: ' + status);
+                            reject(status);
+                        }
+                    });
+                });
+            });
+
+            Promise.all(geocodePromises)
+                .then(function() {
+                    // После геокодирования всех баз, инициализируем карту
+                    if (baseLocations.length > 0) {
+                        map = new google.maps.Map(document.getElementById('map'), {
+                            zoom: 10,
+                            center: baseLocations[0].position,
+                            styles: [
+                                {
+                                    "featureType": "water",
+                                    "stylers": [{"color": "#46bcec"}, {"visibility": "on"}]
+                                },
+                                {
+                                    "featureType": "landscape",
+                                    "stylers": [{"color": "#f2f2f2"}]
+                                },
+                                {
+                                    "featureType": "road",
+                                    "stylers": [{"saturation": -100}, {"lightness": 45}]
+                                }
+                            ]
+                        });
+
+                        // Добавляем маркеры баз
+                        baseLocations.forEach(function(base) {
+                            addStaticBaseMarker(base);
+                        });
+
+                        // Добавляем маркеры клиентов
+                        geocodeClients();
+
+                        // Вычисляем расстояния после геокодирования клиентов
+                    } else {
+                        console.error('No base locations available to center the map.');
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Error geocoding bases: ', error);
+                });
+        }
+
+        function addStaticBaseMarker(base) {
+            var marker = new google.maps.Marker({
+                map: map,
+                position: base.position,
+                icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                title: base.name + " - " + base.address
+            });
+
+            var infowindow = new google.maps.InfoWindow({
+                content: '<strong>' + base.name + '</strong><br>Address: ' + base.address
+            });
+
+            marker.addListener('click', function() {
+                infowindow.open(map, marker);
+            });
+        }
+
+        function geocodeClients() {
+            var geocodePromises = requestData.map(function(request) {
+                return new Promise(function(resolve, reject) {
+                    geocoder.geocode({'address': request.address}, function(results, status) {
+                        if (status === 'OK') {
+                            var location = results[0].geometry.location;
+                            request.location = location; // Добавляем координаты в объект запроса
+                            clientLocations.push({
+                                id: request.id,
+                                position: location,
+                                status: request.status,
+                                date: request.formattedSelectedDate,
+                                time: request.formattedSelectedTime
+                            });
+                            addClientMarker(request);
+                            resolve();
+                        } else {
+                            console.error('Geocoding failed for client address: ' + request.address + ' with status: ' + status);
+                            reject(status);
+                        }
+                    });
+                });
+            });
+
+            Promise.all(geocodePromises)
+                .then(function() {
+                    // После геокодирования всех клиентов, вычисляем расстояния
+                    calculateDistances();
+                })
+                .catch(function(error) {
+                    console.error('Error geocoding clients: ', error);
+                });
+        }
+
+        function addClientMarker(request) {
+            // Получаем текущую дату без времени
+            var today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // Парсим дату из request.formattedSelectedDate (формат 'dd.MM.yyyy')
+            var dateParts = request.formattedSelectedDate.split('.');
+            if (dateParts.length !== 3) {
+                console.error('Неверный формат даты: ' + request.formattedSelectedDate);
+                return;
+            }
+            var day = parseInt(dateParts[0], 10);
+            var month = parseInt(dateParts[1], 10) - 1; // Месяцы в JavaScript начинаются с 0
+            var year = parseInt(dateParts[2], 10);
+
+            if (isNaN(day) || isNaN(month) || isNaN(year)) {
+                console.error('Неверные значения даты: ' + request.formattedSelectedDate);
+                return;
+            }
+
+            var requestDate = new Date(year, month, day);
+            requestDate.setHours(0, 0, 0, 0);
+
+            // Сравниваем даты
+            var isToday = today.getTime() === requestDate.getTime();
+
+            // Устанавливаем цвет маркера
+            var markerColor;
+            if (isToday) {
+                markerColor = "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
+            } else if (request.status === "APPROVED") {
+                markerColor = "http://maps.google.com/mapfiles/ms/icons/green-dot.png";
+            } else {
+                markerColor = "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
+            }
+
+            // Создаем маркер
+            var marker = new google.maps.Marker({
+                map: map,
+                position: request.location,
+                icon: markerColor,
+                title: request.id + '. ' + request.address
+            });
+
+            // Инфо окно
+            var infowindow = new google.maps.InfoWindow({
+                content: '<strong>' + request.id + '. ' + request.address + '</strong><br>' +
+                    'Status: ' + request.status + '<br>' +
+                    'Date: ' + request.formattedSelectedDate + '<br>' +
+                    'Time: ' + request.formattedSelectedTime
+            });
+
+            marker.addListener('click', function() {
+                infowindow.open(map, marker);
+            });
+        }
+
+        function calculateDistances() {
+            var origins = staticBases.map(function(base) { return base.address; });
+            var destinations = requestData.map(function(request) { return request.address; });
+
+            distanceService.getDistanceMatrix({
+                origins: origins,
+                destinations: destinations,
+                travelMode: 'DRIVING',
+                unitSystem: google.maps.UnitSystem.IMPERIAL,
+                avoidHighways: false,
+                avoidTolls: false,
+            }, function(response, status) {
+                if (status !== 'OK') {
+                    console.error('Error with Distance Matrix: ' + status);
+                } else {
+                    var originAddresses = response.originAddresses;
+                    var destinationAddresses = response.destinationAddresses;
+                    var results = response.rows;
+
+                    // Создаем объект для хранения минимального расстояния и времени для каждого клиента
+                    var minDistances = {};
+
+                    for (var i = 0; i < originAddresses.length; i++) {
+                        var origin = originAddresses[i];
+                        var elements = results[i].elements;
+
+                        for (var j = 0; j < elements.length; j++) {
+                            var element = elements[j];
+                            var destination = destinationAddresses[j];
+                            var distanceText = element.distance.text;
+                            var distanceValue = element.distance.value;
+                            var durationText = element.duration.text;
+                            var durationValue = element.duration.value;
+                            var requestId = requestData[j].id;
+
+                            // Инициализируем объект, если еще не существует
+                            if (!minDistances[requestId]) {
+                                minDistances[requestId] = {
+                                    distanceText: distanceText,
+                                    distanceValue: distanceValue,
+                                    durationText: durationText,
+                                    durationValue: durationValue,
+                                    originIndex: i
+                                };
+                            } else {
+                                // Обновляем, если текущий элемент имеет меньшее расстояние
+                                if (distanceValue < minDistances[requestId].distanceValue) {
+                                    minDistances[requestId].distanceText = distanceText;
+                                    minDistances[requestId].distanceValue = distanceValue;
+                                    minDistances[requestId].durationText = durationText;
+                                    minDistances[requestId].durationValue = durationValue;
+                                    minDistances[requestId].originIndex = i;
+                                }
                             }
-                        ]
-                    });
-
-                    for (var i = 0; i < requestData.length; i++) {
-                        geocodeAddress(requestData[i], geocoder, map);
+                        }
                     }
 
-                    // Add static bases
-                    for (var j = 0; j < staticBases.length; j++) {
-                        addStaticBase(staticBases[j], geocoder, map);
+                    // Обновляем таблицу с минимальными расстояниями и временем
+                    for (var requestId in minDistances) {
+                        if (minDistances.hasOwnProperty(requestId)) {
+                            var distanceCell = document.getElementById('distance-' + requestId);
+                            var durationCell = document.getElementById('duration-' + requestId);
+
+                            if (distanceCell && durationCell) {
+                                distanceCell.innerText = minDistances[requestId].distanceText;
+                                durationCell.innerText = minDistances[requestId].durationText;
+                            }
+
+                            // Рисуем полилинию от выбранной базы до клиента с информацией при наведении
+                            var originIndex = minDistances[requestId].originIndex;
+                            var base = staticBases[originIndex];
+                            var client = requestData.find(function(req) { return req.id === requestId; });
+
+                            if (base && client && base.location && client.location) {
+                                drawRoute(base.location, client.location, minDistances[requestId].distanceText, minDistances[requestId].durationText);
+                            }
+                        }
                     }
-                } else {
-                    console.error('Geocoding failed for the first address: ' + status);
                 }
             });
         }
 
-        function geocodeAddress(request, geocoder, map) {
-            geocoder.geocode({'address': request.address}, function(results, status) {
-                if (status === 'OK') {
-                    var markerColor = request.status === "APPROVED"
-                        ? "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
-                        : "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
-
-                    var marker = new google.maps.Marker({
-                        map: map,
-                        position: results[0].geometry.location,
-                        icon: markerColor,
-                        title: request.address
-                    });
-
-                    var infowindow = new google.maps.InfoWindow({
-                        content: '<strong>' + request.address + '</strong><br>Status: ' + request.status
-                    });
-
-                    marker.addListener('click', function() {
-                        infowindow.open(map, marker);
-                    });
-                } else {
-                    console.error('Geocoding failed for address: ' + status);
-                }
+        function drawRoute(origin, destination, distanceText, durationText) {
+            var polyline = new google.maps.Polyline({
+                path: [origin, destination],
+                geodesic: true,
+                strokeColor: '#FF0000',
+                strokeOpacity: 0.6,
+                strokeWeight: 2
             });
-        }
 
-        function addStaticBase(base, geocoder, map) {
-            geocoder.geocode({'address': base.address}, function(results, status) {
-                if (status === 'OK') {
-                    var marker = new google.maps.Marker({
-                        map: map,
-                        position: results[0].geometry.location,
-                        icon: "http://maps.google.com/mapfiles/ms/icons/black-dot.png",
-                        title: base.name + " - " + base.address
-                    });
+            polyline.setMap(map);
 
-                    var infowindow = new google.maps.InfoWindow({
-                        content: '<strong>' + base.name + '</strong><br>Address: ' + base.address
-                    });
+            // Добавляем события для отображения InfoWindow при наведении
+            polyline.addListener('mouseover', function(e) {
+                var infoContent = distanceText + " | " + durationText;
+                infoWindow.setContent(infoContent);
+                infoWindow.setPosition(e.latLng);
+                infoWindow.open(map);
+            });
 
-                    marker.addListener('click', function() {
-                        infowindow.open(map, marker);
-                    });
-                } else {
-                    console.error('Geocoding failed for static base: ' + status);
-                }
+            polyline.addListener('mouseout', function() {
+                infoWindow.close();
             });
         }
     </script>
 
-    <!-- Load Google Maps API -->
+    <!-- Загрузка Google Maps API -->
     <script async defer
             src="https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&callback=initMap">
     </script>

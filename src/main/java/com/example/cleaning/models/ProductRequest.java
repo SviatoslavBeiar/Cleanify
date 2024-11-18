@@ -56,6 +56,7 @@ public class ProductRequest {
     }
     // In ProductRequest.java
     private LocalTime endTime;
+
     private int apartmentSize;
 
     private String address;
