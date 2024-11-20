@@ -1,0 +1,21 @@
+
+body {
+    background-image: url('https://pennstatehealthnews.org/wp-content/uploads/2019/05/050119-spring-clean.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+.navbar {
+    background-color: rgba(209, 239, 164, 0.5) !important;
+}
+
+.product:hover {
+    transition: 0.5s;
+    transform: scale(1.02);
+}
+
+.product-link {
+    color: #000 !important;
+    text-decoration: none;
+}

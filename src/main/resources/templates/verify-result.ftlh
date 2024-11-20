@@ -1,6 +1,8 @@
 <#import "blocks/template.ftlh" as t>
 <@t.template user!>
-    <h1 style="text-align: center">Email Verification</h1>
+    <link rel="stylesheet" href="/static/css/verify-result.css">
+
+    <h1>Email Verification</h1>
     <hr>
-    <p style="text-align: center">${message}</p>
+    <p>${message}</p>
 </@t.template>

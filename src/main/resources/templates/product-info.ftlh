@@ -1,6 +1,6 @@
 <#import "blocks/template.ftlh" as t>
 <@t.template user>
-    <link rel="stylesheet" href="/static/css/requests.css">
+    <link rel="stylesheet" href="/static/css/product-info.css">
 
     <!-- Page content container -->
     <div class="container my-5">
@@ -36,7 +36,6 @@
                 <!-- Product description and price -->
                 <div class="description-price text-container p-3 mb-4">
                     <h1>${product.title}</h1>
-                    <h3 class="text-success">${product.price} $</h3>
                     <p class="text-muted">City: ${product.city}</p>
                     <p>${product.description}</p>
                 </div>
@@ -98,15 +97,24 @@
                             </div>
 
                             <!-- Google Map Container -->
-
-
                             <div id="map_div" style="width: 100%; height: 300px; margin-top: 20px;"></div>
-                            <div class="form-group">
+                            <div class="form-group mt-3">
+                                <label for="addressInput">Make sure that your address is in "${product.city}"</label>
                                 <label for="addressInput">Enter Address:</label>
-                                <input type="text" class="form-control" name="address" id="addressInput" placeholder="Enter your address" required>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="address" id="addressInput" placeholder="Enter your address" required>
+                                    <div class="input-group-append">
+                                        <button type="button" id="findAddressButton" class="btn btn-secondary">Find Address</button>
+                                    </div>
+                                </div>
                             </div>
 
-                            <button type="submit" id="submitButton" class="btn btn-primary mt-3">Submit Request</button>
+                            <!-- Предупреждение о несоответствии области -->
+                            <div id="cityWarning" class="alert alert-warning mt-3" style="display: none;">
+                                <strong>Warning!</strong> The entered address is not within "${product.city}". Please enter an address within "${product.city}".
+                            </div>
+
+                            <button type="submit" id="submitButton" class="btn btn-primary mt-3" disabled>Submit Request</button>
                         </form>
                     </div>
                 <#else>
@@ -160,55 +168,113 @@
     <script>
         var productId = ${product.id};
         var csrfToken = '${_csrf.token}';
+        var initialCity = "${product.city}";
+        var googleMapsApiKey = "${googleMapsApiKey}";
     </script>
-
-
 
     <script>
         let map;
         let marker;
         let geocoder;
+        let isAddressValid = false; // Флаг валидности адреса
+
+        // Функция для удаления диакритических знаков и приведения строки к нижнему регистру
+        function normalizeString(str) {
+            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        }
 
         function initMap() {
-            map = new google.maps.Map(document.getElementById("map_div"), {
-                zoom: 8,
-                center: { lat: 37.7749, lng: -122.4194 }, // Центр карты
-            });
             geocoder = new google.maps.Geocoder();
+            map = new google.maps.Map(document.getElementById("map_div"), {
+                zoom: 12,
+                center: { lat: 52.4084, lng: 16.9342 }, // Центр Познани
+            });
             marker = new google.maps.Marker({
                 map: map,
                 visible: false, // Маркер скрыт по умолчанию
             });
 
+            // Геокодируем начальный город
+            geocodeAddress(initialCity, function(location) {
+                if (location) {
+                    map.setCenter(location);
+                    marker.setPosition(location);
+                    marker.setVisible(true);
+                }
+            });
+
             // Получаем элементы ввода и кнопки
             const addressInput = document.getElementById("addressInput");
+            const findAddressButton = document.getElementById("findAddressButton");
             const submitButton = document.getElementById("submitButton");
+            const cityWarning = document.getElementById("cityWarning");
 
             // Событие на нажатие Enter в поле ввода адреса
             addressInput.addEventListener("keydown", (event) => {
                 if (event.key === "Enter") {
                     event.preventDefault(); // Предотвращаем стандартное поведение Enter
-                    const address = addressInput.value;
+                    const address = addressInput.value.trim();
                     if (address) {
-                        geocodeAddress(address); // Устанавливаем маркер
+                        geocodeAddress(address);
                     }
+                }
+            });
+
+            // Событие нажатия кнопки "Find Address"
+            findAddressButton.addEventListener("click", () => {
+                const address = addressInput.value.trim();
+                if (address) {
+                    geocodeAddress(address);
+                } else {
+                    alert("Please enter an address.");
                 }
             });
 
             // Событие нажатия кнопки Submit
             submitButton.addEventListener("click", (event) => {
+                if (!isAddressValid) {
+                    event.preventDefault(); // Предотвращаем отправку формы
+                    alert("Please enter a valid address within " + initialCity + ".");
+                }
                 // Форма отправляется, данные обрабатываются на сервере
             });
         }
 
         // Функция геокодинга и установки маркера
-        function geocodeAddress(address) {
+        function geocodeAddress(address, callback) {
             geocoder.geocode({ address: address }, (results, status) => {
                 if (status === "OK") {
                     const location = results[0].geometry.location;
                     map.setCenter(location); // Центрируем карту
                     marker.setPosition(location); // Устанавливаем маркер
                     marker.setVisible(true); // Делаем маркер видимым
+
+                    // Проверка, принадлежит ли адрес указанной области
+                    const addressComponents = results[0].address_components;
+                    let cityMatch = false;
+
+                    addressComponents.forEach(component => {
+                        if (component.types.includes("locality") || component.types.includes("administrative_area_level_2")) {
+                            // Нормализуем строки для корректного сравнения
+                            const componentCity = normalizeString(component.long_name);
+                            const targetCity = normalizeString(initialCity);
+                            if (componentCity === targetCity) {
+                                cityMatch = true;
+                            }
+                        }
+                    });
+
+                    if (cityMatch) {
+                        cityWarning.style.display = "none";
+                        isAddressValid = true;
+                        submitButton.disabled = false;
+                    } else {
+                        cityWarning.style.display = "block";
+                        isAddressValid = false;
+                        submitButton.disabled = true;
+                    }
+
+                    if (callback) callback(location);
                 } else {
                     alert("Geocode was not successful for the following reason: " + status);
                 }
@@ -223,10 +289,6 @@
     <script async
             src="https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&callback=initMap">
     </script>
-
-
-
-
 
     <!-- Подключение вашего внешнего JavaScript-файла -->
     <script src="/static/js/AJAXreq.js"></script>

@@ -1,0 +1,77 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    color: #333;
+}
+
+h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #444;
+}
+
+h2 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #555;
+}
+
+img {
+    border: 3px solid #6a11cb;
+    border-radius: 50%;
+    transition: transform 0.2s;
+}
+
+img:hover {
+    transform: scale(1.1); /* Увеличение аватара при наведении */
+}
+
+.btn {
+    display: inline-block;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    text-align: center;
+    transition: all 0.2s ease-in-out; /* Быстрое реагирование */
+}
+
+.btn-dark {
+    background: linear-gradient(to right, #333, #555);
+    color: white;
+}
+
+.btn-dark:hover {
+    background: linear-gradient(to right, #555, #333);
+    transform: scale(1.03);
+}
+
+.btn-danger {
+    background: linear-gradient(to right, #ff4d4d, #ff1a1a);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(to right, #ff1a1a, #ff4d4d);
+    transform: scale(1.03);
+}
+
+b {
+    color: #6a11cb; /* Цвет акцента для текста */
+}
+
+.container {
+    text-align: center;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.8); /* Прозрачность контейнера */
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+hr {
+    border: none;
+    height: 1px;
+    background-color: #ddd;
+}

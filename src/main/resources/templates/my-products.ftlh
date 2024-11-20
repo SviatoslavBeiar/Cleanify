@@ -1,5 +1,6 @@
 <#import "blocks/template.ftlh" as t>
 <@t.template user>
+    <link rel="stylesheet" href="/static/css/my-products.css">
     <h1 class="text-center mb-4">My Posts</h1>
     <hr>
     <a class="btn btn-primary mt-3 mb-3 w-100 text-center"
@@ -26,9 +27,12 @@
                 <label for="searchCity">City</label>
                 <select id="searchCity" required name="city" class="form-control">
                     <option value="">Select City</option>
-                    <option value="Warszawa">Warszawa</option>
-                    <option value="Poznan">Poznan</option>
-                    <option value="Gdansk">Gdansk</option>
+                    <option value="Warszawa">Warsaw</option>
+                    <option value="Poznan">Poznań</option>
+                    <option value="Gdansk">Gdańsk</option>
+                    <option value="Wrocław">Wrocław</option>
+                    <option value="Łódź">Łódź</option>
+                    <option value="Katowice">Katowice</option>
                 </select>
             </div>
             <div class="form-group">
@@ -58,24 +62,34 @@
         </form>
     </div>
 
-    <div class="card-columns">
+    <div class="card-grid">
         <#list products as product>
             <a href="/product/${product.id}" class="product-link">
-                <div class="card bg-light shadow-sm my-3 product">
-                    <div class="card-header d-flex justify-content-end p-2">
-                        <form action="/product/delete/${product.id}" method="post">
-                            <input type="hidden" name="_csrf" value="${_csrf.token}"/>
-                            <button type="submit" class="btn btn-outline-danger btn-sm">
-                                Delete
-                            </button>
-                        </form>
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between p-2">
+                        <span>Status: <#if product.deleted>Deleted<#else>Active</#if></span>
+                        <#if !product.deleted>
+                            <form action="/product/delete/${product.id}" method="post">
+                                <input type="hidden" name="_csrf" value="${_csrf.token}"/>
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    Delete
+                                </button>
+                            </form>
+                        <#else>
+                            <form action="/product/restore/${product.id}" method="post">
+                                <input type="hidden" name="_csrf" value="${_csrf.token}"/>
+                                <button type="submit" class="btn btn-outline-success btn-sm">
+                                    Restore
+                                </button>
+                            </form>
+                        </#if>
                     </div>
-                    <img src="/images/${product.previewImageId}" class="card-img-top rounded" alt="${product.title}">
+                    <img src="/images/${product.previewImageId}" class="card-img-top" alt="${product.title}">
                     <div class="card-body">
                         <h5 class="card-title text-dark">${product.title}</h5>
                         <p class="card-text text-muted">${product.price} ₽</p>
                     </div>
-                    <div class="card-footer bg-transparent border-top-0 text-center">
+                    <div class="card-footer bg-transparent">
                         <small class="text-secondary">${product.city}</small>
                     </div>
                 </div>
@@ -85,25 +99,15 @@
         </#list>
     </div>
 
-    <!-- Additional Styles -->
-    <style>
-        .product-link {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .product-link:hover {
-            text-decoration: none;
-        }
-
-        .card {
-            opacity: 0.8; /* Card transparency */
-            transition: opacity 0.3s, transform 0.3s;
-        }
-
-        .card:hover {
-            opacity: 1; /* Full opacity on hover */
-            transform: scale(1.03); /* Slight zoom on hover */
-        }
-    </style>
+    <script>
+        document.querySelectorAll('.custom-file-input').forEach(input => {
+            input.addEventListener('change', event => {
+                const fileName = event.target.files[0]?.name || 'Choose file';
+                const label = event.target.nextElementSibling;
+                if (label) {
+                    label.textContent = fileName;
+                }
+            });
+        });
+    </script>
 </@t.template>

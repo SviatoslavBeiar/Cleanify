@@ -1,0 +1,26 @@
+.login-container {
+    background-color: rgba(165, 188, 120, 0.7); /* Полупрозрачный белый фон */
+    background-image: url('/static/images/ricardo-milos2.gif'); /* Устанавливаем гифку как фон */
+    background-size: cover; /* Масштабируем фон для заполнения контейнера */
+    background-position: center; /* Центрируем фон */
+    background-repeat: no-repeat; /* Отключаем повтор фона */
+    border-radius: 10px; /* Закругленные углы */
+    padding: 30px; /* Внутренние отступы */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень */
+    max-width: 400px; /* Максимальная ширина */
+    margin: 50px auto; /* Центрирование */
+}
+
+h1, h2 {
+    color: #333;
+}
+
+.btn-google {
+    background-color: #4285F4;
+    color: white;
+    border: none;
+}
+
+.btn-google:hover {
+    background-color: #357ae8;
+}

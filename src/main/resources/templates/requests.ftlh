@@ -1,5 +1,6 @@
 <#import "blocks/template.ftlh" as t>
 <@t.template user>
+    <link rel="stylesheet" href="/static/css/requests.css">
     <div class="container my-5">
         <h2 class="mb-4">User Requests List</h2>
         <table class="table table-bordered table-hover">
@@ -93,98 +94,6 @@
 
     <!-- Дополнительные стили -->
     <style>
-        h2 {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #2c3e50;
-            text-align: center;
-            text-transform: uppercase;
-        }
-
-        .table {
-            border: 1px solid #ddd;
-            margin-bottom: 50px;
-        }
-
-        .table-hover tbody tr:hover {
-            background-color: #f5f5f5;
-        }
-
-        .table thead th {
-            background-color: #4CAF50;
-            color: white;
-            text-align: center;
-        }
-
-        td, th {
-            vertical-align: middle !important;
-            text-align: center;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        .badge-warning {
-            background-color: #ffc107;
-            color: #212529;
-        }
-        .badge-success {
-            background-color: #28a745;
-            color: white;
-        }
-        .badge-danger {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .btn-sm {
-            margin: 0 5px;
-        }
-        /* Стили для легенды карты */
-        .map-legend {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px 15px;
-            margin: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-            position: absolute;
-            bottom: 30px;
-            left: 30px;
-            z-index: 5;
-        }
-
-        .map-legend h5 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            font-weight: bold;
-            color: #2c3e50;
-            text-align: center;
-        }
-
-        .map-legend ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .map-legend li {
-            display: flex;
-            align-items: center;
-            margin-bottom: 5px;
-        }
-
-        .legend-icon {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            margin-right: 8px;
-            border-radius: 50%;
-            border: 1px solid #999;
-        }
 
     </style>
 
@@ -211,6 +120,10 @@
             {
                 address: "Wierzbno",
                 name: "Cleaning Base Wierzbno "
+            },
+            {
+                address: "LAZARZ",
+                name: "Cleaning Base LAZARZ "
             }
         ];
     </script>

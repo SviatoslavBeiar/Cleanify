@@ -67,28 +67,72 @@ public class ProductService {
     }
 
 
-    @Transactional
-    public void deleteProduct(User user, Long id) {
-
-        Product product = productRepository.findById(id)
-                .orElse(null);
-
-        if (product != null) {
-            if (product.getUser().getId().equals(user.getId())) {
-                productRepository.delete(product);
-
-                log.info("Product with id = {} was deleted", id);
-            }
-            else {
-                log.error("User: {} haven't this product with id = {}", user.getEmail(), id);
-            }
-        } else {
-            log.error("Product with id = {} is not found", id);
-        }    }
-
+//    @Transactional
+//    public void deleteProduct(User user, Long id) {
+//
+//        Product product = productRepository.findById(id)
+//                .orElse(null);
+//
+//        if (product != null) {
+//            if (product.getUser().getId().equals(user.getId())) {
+//                productRepository.delete(product);
+//
+//                log.info("Product with id = {} was deleted", id);
+//            }
+//            else {
+//                log.error("User: {} haven't this product with id = {}", user.getEmail(), id);
+//            }
+//        } else {
+//            log.error("Product with id = {} is not found", id);
+//        }    }
+//
 
 
     public Product getProductById(Long id) {
         return productRepository.findById(id).orElse(null);
+    }
+
+    // Метод для мягкого удаления продукта
+    @Transactional
+    public void softDeleteProduct(User user, Long id) {
+        Product product = productRepository.findById(id).orElse(null);
+        if (product != null) {
+            if (product.getUser().getId().equals(user.getId())) {
+                product.setDeleted(true);
+                productRepository.save(product);
+                log.info("Product with id = {} was soft deleted by user {}", id, user.getEmail());
+            } else {
+                log.error("User: {} doesn't have permission to delete product with id = {}", user.getEmail(), id);
+            }
+        } else {
+            log.error("Product with id = {} not found", id);
+        }
+    }
+
+    @Transactional
+    public void restoreProduct(Long id) {
+        Product product = productRepository.findById(id).orElse(null);
+        if (product != null && product.isDeleted()) {
+            product.setDeleted(false);
+            productRepository.save(product);
+            log.info("Product with id = {} was restored", id);
+        } else {
+            log.error("Product with id = {} not found or not deleted", id);
+        }
+    }
+
+    public List<Product> listAllProducts() {
+        return productRepository.findAll();
+    }
+
+    public List<Product> listActiveProducts(String title) {
+        if (title != null && !title.isEmpty()) {
+            return productRepository.findByTitleAndDeletedFalse(title);
+        }
+        return productRepository.findByDeletedFalse();
+    }
+
+    public void deleteProduct(User user, Long id) {
+        softDeleteProduct(user, id);
     }
 }

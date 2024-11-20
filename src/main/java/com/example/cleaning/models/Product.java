@@ -42,4 +42,8 @@ public class Product {
         image.setProduct(this);
         images.add(image);
     }
+
+
+    @Column(nullable = false)
+    private boolean deleted = false;
 }

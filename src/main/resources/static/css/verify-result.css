@@ -1,0 +1,31 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    color: #333;
+    text-align: center;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    color: #444;
+}
+
+hr {
+    border: none;
+    height: 1px;
+    background-color: #ddd;
+    margin: 20px auto;
+    width: 80%;
+}
+
+p {
+    font-size: 18px;
+    margin-top: 20px;
+    background: rgb(255, 255, 255); /* Полупрозрачный фон текста */
+    padding: 10px 20px;
+    border-radius: 10px;
+    display: inline-block;
+}

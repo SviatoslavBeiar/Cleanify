@@ -31,11 +31,11 @@ public class AdminController {
     @Value("${google.maps.api.key}")
     private String googleMapsApiKey;
 /////////////
-    @PostMapping("/product/delete/{id}")
-        public String deleteProduct(@PathVariable Long id, Principal principal) {
-        productService.deleteProduct(productService.getUserByPrincipal(principal), id);
-        return "redirect:/my/products";
-    }
+//    @PostMapping("/product/delete/{id}")
+//        public String deleteProduct(@PathVariable Long id, Principal principal) {
+//        productService.deleteProduct(productService.getUserByPrincipal(principal), id);
+//        return "redirect:/my/products";
+//    }
     @PostMapping("/product/create")
     public String createProduct(@RequestParam("file1") MultipartFile file1, @RequestParam("file2") MultipartFile file2,
                                 @RequestParam("file3") MultipartFile file3, Product product, Principal principal) throws IOException {
@@ -43,7 +43,25 @@ public class AdminController {
         return "redirect:/my/products";
     }
 //////////////
+@PostMapping("/product/delete/{id}")
+public String deleteProduct(@PathVariable Long id, Principal principal) {
+    User user = userService.getUserByPrincipal(principal);
+    productService.deleteProduct(user, id); // Используется softDelete
+    return "redirect:/my/products";
+}
+    @PostMapping("/product/restore/{id}")
+    public String restoreProduct(@PathVariable Long id) {
+        productService.restoreProduct(id);
+        return "redirect:/my/products";
+    }
 
+    // Метод для отображения всех продуктов (включая удаленные)
+    @GetMapping("/admin/products")
+    public String viewAllProducts(Model model, Principal principal) {
+        model.addAttribute("user", userService.getUserByPrincipal(principal));
+        model.addAttribute("products", productService.listAllProducts());
+        return "admin-products"; // Создайте этот шаблон
+    }
     // Метод для одобрения запроса
     @PostMapping("/admin/requests/approve/{id}")
     public String approveRequest(@PathVariable Long id) {
