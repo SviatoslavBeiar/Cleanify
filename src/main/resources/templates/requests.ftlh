@@ -80,10 +80,10 @@
                     <span class="legend-icon" style="background-color: green;"></span>
                     Approved Request
                 </li>
-                <li>
-                    <span class="legend-icon" style="background-color: red;"></span>
-                    Rejected Request
-                </li>
+<#--                <li>-->
+<#--                    <span class="legend-icon" style="background-color: red;"></span>-->
+<#--                    Other Request-->
+<#--                </li>-->
             </ul>
         </div>
 
@@ -286,9 +286,9 @@
 
             // Устанавливаем цвет маркера
             var markerColor;
-            if (isToday) {
+            if (request.status === "APPROVED" && isToday) {
                 markerColor = "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
-            } else if (request.status === "APPROVED") {
+            } else if (request.status === "APPROVED" && !isToday) {
                 markerColor = "http://maps.google.com/mapfiles/ms/icons/green-dot.png";
             } else {
                 markerColor = "http://maps.google.com/mapfiles/ms/icons/red-dot.png";

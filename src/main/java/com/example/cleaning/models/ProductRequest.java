@@ -1,7 +1,7 @@
 package com.example.cleaning.models;
 
 import com.example.cleaning.models.enums.RequestStatus;
-import lombok.Data;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -10,7 +10,10 @@ import java.time.format.DateTimeFormatter;
 
 @Entity
 @Table(name = "product_requests")
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProductRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,7 +35,7 @@ public class ProductRequest {
     // Дата создания запроса
     @Enumerated(EnumType.STRING)
     private RequestStatus status = RequestStatus.PENDING; // Статус запроса (по умолчанию PENDING)
-
+    private boolean done = false;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
@@ -60,7 +63,7 @@ public class ProductRequest {
     private int apartmentSize;
 
     private String address;
-    // Getter and Setter for endTime and apartmentSize
+
 
 
 

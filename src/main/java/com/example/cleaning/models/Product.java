@@ -1,6 +1,6 @@
 package com.example.cleaning.models;
 
-import lombok.Data;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -9,7 +9,10 @@ import java.util.List;
 
 @Entity
 @Table(name = "products")
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

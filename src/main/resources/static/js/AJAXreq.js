@@ -90,7 +90,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // Функция для обновления стоимости на кнопке отправки
     function updateSubmitButtonCost() {
         var size = apartmentSizeInput.value;
         var cost = 0;
@@ -116,11 +115,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (cost > 0) {
-            submitButton.textContent = 'Submit Request (' + cost + ' zł)';
+            submitButton.textContent = 'Pay with PayPal (' + cost + ' zł)';
         } else {
-            submitButton.textContent = 'Submit Request';
+            submitButton.textContent = 'Pay with PayPal';
         }
     }
+
 
     selectedDateInput.addEventListener('change', loadTimeWindows);
     apartmentSizeInput.addEventListener('change', function() {

@@ -43,7 +43,7 @@
                 <!-- Seller contact information -->
                 <div class="contact-info text-container p-3 mb-4">
                     <h5>Seller Contact Information</h5>
-                    <p>Name: <a href="/user/${authorProduct.id}">${authorProduct.name}</a></p>
+                    <p>Name: <a>${authorProduct.name}</a></p>
                     <p>Phone: <b>${authorProduct.phoneNumber}</b></p>
                     <a href="tel:${authorProduct.phoneNumber}" class="btn btn-primary">Call the Seller</a>
                 </div>
@@ -61,7 +61,7 @@
                         <#if errorMessage??>
                             <div class="alert alert-danger">${errorMessage}</div>
                         </#if>
-                        <form action="/product/${product.id}/request" method="post">
+                        <form action="/product/${product.id}/pay" method="post">
                             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
 
                             <!-- Apartment Size Selection -->
@@ -109,13 +109,20 @@
                                 </div>
                             </div>
 
-                            <!-- Предупреждение о несоответствии области -->
+                            <!-- Warning for mismatched area -->
                             <div id="cityWarning" class="alert alert-warning mt-3" style="display: none;">
                                 <strong>Warning!</strong> The entered address is not within "${product.city}". Please enter an address within "${product.city}".
                             </div>
 
-                            <button type="submit" id="submitButton" class="btn btn-primary mt-3" disabled>Submit Request</button>
+                            <button type="submit" id="submitButton" class="btn btn-primary mt-3" disabled>Pay with PayPal</button>
                         </form>
+                        <div class="alert alert-success">
+                            <strong>Testing Credit cards</strong>
+                            <div>Type: <strong>VISA</strong></div>
+                            <div>Card Number: <strong>4063335013352196</strong></div>
+                            <div>Expiry: <strong>12/29</strong></div>
+                            <div>CVC Code: <strong>Any 3 digits</strong></div>
+                        </div>
                     </div>
                 <#else>
                     <p>To create a request, please <a href="/login">log in</a>.</p>
@@ -164,7 +171,7 @@
         </div>
     </div>
 
-    <!-- Передаем необходимые переменные в JavaScript -->
+    <!-- Pass necessary variables to JavaScript -->
     <script>
         var productId = ${product.id};
         var csrfToken = '${_csrf.token}';
@@ -176,9 +183,9 @@
         let map;
         let marker;
         let geocoder;
-        let isAddressValid = false; // Флаг валидности адреса
+        let isAddressValid = false; // Flag for address validity
 
-        // Функция для удаления диакритических знаков и приведения строки к нижнему регистру
+        // Function to remove diacritics and convert string to lowercase
         function normalizeString(str) {
             return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
         }
@@ -187,14 +194,14 @@
             geocoder = new google.maps.Geocoder();
             map = new google.maps.Map(document.getElementById("map_div"), {
                 zoom: 12,
-                center: { lat: 52.4084, lng: 16.9342 }, // Центр Познани
+                center: { lat: 52.4084, lng: 16.9342 }, // Center of Poznan
             });
             marker = new google.maps.Marker({
                 map: map,
-                visible: false, // Маркер скрыт по умолчанию
+                visible: false, // Marker hidden by default
             });
 
-            // Геокодируем начальный город
+            // Geocode initial city
             geocodeAddress(initialCity, function(location) {
                 if (location) {
                     map.setCenter(location);
@@ -203,16 +210,16 @@
                 }
             });
 
-            // Получаем элементы ввода и кнопки
+            // Get input elements and buttons
             const addressInput = document.getElementById("addressInput");
             const findAddressButton = document.getElementById("findAddressButton");
             const submitButton = document.getElementById("submitButton");
             const cityWarning = document.getElementById("cityWarning");
 
-            // Событие на нажатие Enter в поле ввода адреса
+            // Event for pressing Enter in address input field
             addressInput.addEventListener("keydown", (event) => {
                 if (event.key === "Enter") {
-                    event.preventDefault(); // Предотвращаем стандартное поведение Enter
+                    event.preventDefault(); // Prevent default Enter behavior
                     const address = addressInput.value.trim();
                     if (address) {
                         geocodeAddress(address);
@@ -220,7 +227,7 @@
                 }
             });
 
-            // Событие нажатия кнопки "Find Address"
+            // Event for clicking "Find Address" button
             findAddressButton.addEventListener("click", () => {
                 const address = addressInput.value.trim();
                 if (address) {
@@ -230,32 +237,32 @@
                 }
             });
 
-            // Событие нажатия кнопки Submit
+            // Event for clicking Submit button
             submitButton.addEventListener("click", (event) => {
                 if (!isAddressValid) {
-                    event.preventDefault(); // Предотвращаем отправку формы
+                    event.preventDefault(); // Prevent form submission
                     alert("Please enter a valid address within " + initialCity + ".");
                 }
-                // Форма отправляется, данные обрабатываются на сервере
+                // The form is submitted, data is processed on the server
             });
         }
 
-        // Функция геокодинга и установки маркера
+        // Geocoding function and marker placement
         function geocodeAddress(address, callback) {
             geocoder.geocode({ address: address }, (results, status) => {
                 if (status === "OK") {
                     const location = results[0].geometry.location;
-                    map.setCenter(location); // Центрируем карту
-                    marker.setPosition(location); // Устанавливаем маркер
-                    marker.setVisible(true); // Делаем маркер видимым
+                    map.setCenter(location); // Center the map
+                    marker.setPosition(location); // Set marker
+                    marker.setVisible(true); // Make marker visible
 
-                    // Проверка, принадлежит ли адрес указанной области
+                    // Check if address belongs to specified area
                     const addressComponents = results[0].address_components;
                     let cityMatch = false;
 
                     addressComponents.forEach(component => {
                         if (component.types.includes("locality") || component.types.includes("administrative_area_level_2")) {
-                            // Нормализуем строки для корректного сравнения
+                            // Normalize strings for accurate comparison
                             const componentCity = normalizeString(component.long_name);
                             const targetCity = normalizeString(initialCity);
                             if (componentCity === targetCity) {
@@ -281,16 +288,16 @@
             });
         }
 
-        // Инициализация карты
+        // Initialize the map
         window.initMap = initMap;
     </script>
 
-    <!-- Подключение Google Maps API -->
+    <!-- Include Google Maps API -->
     <script async
             src="https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&callback=initMap">
     </script>
 
-    <!-- Подключение вашего внешнего JavaScript-файла -->
+    <!-- Include your external JavaScript file -->
     <script src="/static/js/AJAXreq.js"></script>
 
 </@t.template>

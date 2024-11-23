@@ -26,7 +26,9 @@
                 My Offers
             </a>
         </#if>
-
+        <a class="btn btn-dark mb-3" href="/my/requests">
+            My requests
+        </a>
         <form action="/logout" method="post">
             <input type="hidden" name="_csrf" value="${_csrf.token}"/>
             <button type="submit" class="btn btn-danger mb-2">

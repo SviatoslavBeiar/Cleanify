@@ -1,11 +1,16 @@
 .registration-container {
-    background-color: rgba(195, 236, 151, 0.8); /* Полупрозрачный белый фон */
+    background-color: rgba(195, 236, 151, 0.55); /* Полупрозрачный фон */
     border-radius: 10px;
     padding: 30px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень */
     max-width: 400px;
     margin: 50px auto;
     text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.registration-container:hover {
+    transform: translateY(-5px);
 }
 
 h1 {
@@ -16,32 +21,47 @@ h1 {
 
 .form-group {
     margin-bottom: 20px;
-    position: relative;
+    text-align: left;
 }
 
 .form-group label {
     display: block;
-    text-align: left;
     margin-bottom: 5px;
     font-size: 14px;
     color: #555;
 }
 
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-wrapper .icon {
+    position: absolute;
+    left: 10px;
+    font-size: 18px;
+    color: #555;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
 .form-group input {
-    width: calc(100% - 40px);
-    padding: 10px 10px 10px 40px;
+    width: 100%;
+    padding: 10px 10px 10px 40px; /* Отступ для иконки */
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 16px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.form-group .icon {
-    position: absolute;
-    top: 50%;
-    left: 10px;
-    transform: translateY(-50%);
-    font-size: 18px;
-    color: #555;
+.form-group input:focus {
+    border-color: #78ab46;
+    box-shadow: 0 0 5px rgba(120, 171, 70, 0.5);
+}
+
+.input-wrapper:hover .icon {
+    color: #78ab46;
+    transform: scale(1.2);
 }
 
 .btn-dark {
@@ -52,12 +72,14 @@ h1 {
     border-radius: 5px;
     font-size: 16px;
     cursor: pointer;
-    animation: pulse 1s infinite;
+    animation: pulse 2s infinite;
     width: 100%;
+    transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .btn-dark:hover {
     background-color: #555;
+    transform: scale(1.05);
 }
 
 .message-container {

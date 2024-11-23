@@ -1,0 +1,173 @@
+/* my-requests.css */
+
+/* Container Styling */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header Styling */
+h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background: #ddd;
+    margin-bottom: 20px;
+}
+
+/* Alert Messages */
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+.alert-success {
+    color: #3c763d;
+    background-color: #dff0d8;
+    border-color: #d6e9c6;
+}
+
+.alert-danger {
+    color: #a94442;
+    background-color: #f2dede;
+    border-color: #ebccd1;
+}
+
+/* Requests Table */
+.requests-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 1em;
+}
+
+.requests-table th, .requests-table td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.requests-table th {
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.requests-table tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+.requests-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Status Labels */
+.status-approved {
+    color: #155724;
+    background-color: #d4edda;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.status-pending {
+    color: #856404;
+    background-color: #fff3cd;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.status-rejected {
+    color: #721c24;
+    background-color: #f8d7da;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    font-weight: 400;
+    color: #212529;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    background-color: transparent;
+    border: 1px solid transparent;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    border-radius: 4px;
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+}
+
+.btn-warning {
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+}
+
+.btn-warning:hover {
+    color: #856404;
+    background-color: #ffeeba;
+    border-color: #ffe8a1;
+}
+
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px;
+}
+
+/* Cancel Form Styling */
+.cancel-form {
+    display: inline-block;
+}
+
+/* Responsive Table */
+@media (max-width: 768px) {
+    .requests-table th, .requests-table td {
+        padding: 8px 10px;
+    }
+
+    .btn {
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+}
+
+/* Additional Styling for Enhanced Appearance */
+body {
+    background-color: #f9f9f9;
+    font-family: 'Arial', sans-serif;
+    color: #333;
+}
+
+a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+footer {
+    text-align: center;
+    padding: 20px 0;
+    margin-top: 40px;
+    border-top: 1px solid #ddd;
+    color: #777;
+    font-size: 0.9em;
+}

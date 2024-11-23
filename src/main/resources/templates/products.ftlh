@@ -33,7 +33,7 @@
             <div class="row">
                 <#list products as product>
                     <div class="col-md-4 mb-4">
-                        <div class="card h-100 shadow-sm" style="background: rgba(255, 255, 255, 0.8);">
+                        <div class="card h-100 shadow-sm" style="background: rgba(255, 255, 255, 0.6);">
                             <a href="/product/${product.id}" class="product-link">
                                 <img src="/images/${product.previewImageId}" class="card-img-top" alt="${product.title}" style="height: 200px; object-fit: cover;">
                             </a>

@@ -30,21 +30,9 @@ public class ProductRequestService {
     private final UserRepository userRepository;
     private final MailSenderService mailSenderService;
 
-//    public void createRequest(Long productId, String date, String time, Principal principal) {
-//        User user = userRepository.findByEmail(principal.getName());
-//        Product product = productRepository.findById(productId).orElse(null);
-//
-//        if (user != null && product != null) {
-//            ProductRequest request = new ProductRequest();
-//            request.setUser(user);
-//            request.setProduct(product);
-//            request.setSelectedDate(LocalDate.parse(date));
-//            request.setSelectedTime(LocalTime.parse(time, DateTimeFormatter.ofPattern("HH:mm")));
-//
-//            productRequestRepository.save(request);
-//        }
-//    }
-
+    public List<ProductRequest> getRequestsByUser(User user) {
+        return productRequestRepository.findAllByUser(user);
+    }
 
     public boolean isTimeSlotAvailable(Long productId, LocalDate date, LocalTime time) {
         return !productRequestRepository.existsByProductIdAndSelectedDateAndSelectedTimeAndStatus(
@@ -82,13 +70,7 @@ public class ProductRequestService {
     }
 
 
-//    public void approveRequest(Long requestId) {
-//        ProductRequest request = productRequestRepository.findById(requestId).orElse(null);
-//        if (request != null && request.getStatus() == RequestStatus.PENDING) {
-//            request.setStatus(RequestStatus.APPROVED);
-//            productRequestRepository.save(request);
-//        }
-//    }
+
 
     public void approveRequest(Long requestId) {
         ProductRequest request = productRequestRepository.findById(requestId).orElse(null);
@@ -141,35 +123,9 @@ public class ProductRequestService {
         }
     }
 
-    //public void approveRequest(Long requestId) {
-//    ProductRequest request = productRequestRepository.findById(requestId).orElse(null);
-//    if (request != null && request.getStatus() == RequestStatus.PENDING) {
-//        request.setStatus(RequestStatus.APPROVED);
-//        productRequestRepository.save(request);
-//        String recipientEmail = request.getUser().getEmail();  // Get user's email address
-//        String subject = "Request Approved: " + request.getProduct().getTitle();
-//
-//        String text = String.format(
-//                "Dear Customer,\n\n"
-//                        + "We are pleased to inform you that your request for the service \"%s\" has been successfully approved!\n\n"
-//                        + "Details:\n"
-//                        + "- Service Name: %s\n"
-//                        + "- Time: %s O'clock\n"
-//                        + "- Date: %s\n\n"
-//                        + "Thank you for choosing us!\n\n"
-//                        + "Best regards,\n"
-//                        + "Your Support Team",
-//                request.getProduct().getTitle(),
-//                request.getProduct().getTitle(),
-//                request.getSelectedTime(),
-//                request.getSelectedDate()
-//        );
-//
-//        mailSenderService.sendEmail(recipientEmail, subject, text);
-//
-//
-//    }
-//}
+
+
+
     public void rejectRequest(Long requestId) {
         ProductRequest request = productRequestRepository.findById(requestId).orElse(null);
         if (request != null && request.getStatus() == RequestStatus.PENDING) {
@@ -244,12 +200,14 @@ public class ProductRequestService {
                 request.setEndTime(endTime);
                 request.setApartmentSize(apartmentSize);
                 request.setAddress(address);
+                request.setStatus(RequestStatus.APPROVED);
                 productRequestRepository.save(request);
             } else {
                 throw new TimeSlotAlreadyBookedException("The selected time window is not available.");
             }
         }
     }
+
     public List<String> getAvailableTimeWindows(Long productId, LocalDate date, double duration) {
         int totalTeams = 5; // Total available teams
 
