@@ -5,7 +5,10 @@ import com.example.cleaning.models.enums.Role;
 import com.example.cleaning.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
@@ -94,6 +97,19 @@ public class UserService {
 
     public User getUserByPrincipal(Principal principal) {
         if (principal == null) return new User();
-        return userRepository.findByEmail(principal.getName());
+        String email = null;
+
+        if (principal instanceof Authentication) {
+            Object principalObj = ((Authentication) principal).getPrincipal();
+            if (principalObj instanceof UserDetails) {
+                email = ((UserDetails) principalObj).getUsername();
+            } else if (principalObj instanceof OAuth2User) {
+                email = ((OAuth2User) principalObj).getAttribute("email");
+            }
+        }
+        if (email != null) {
+            return userRepository.findByEmail(email);
+        }
+        return new User();
     }
 }

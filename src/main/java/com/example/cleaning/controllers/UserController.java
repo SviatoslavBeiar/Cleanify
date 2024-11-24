@@ -21,11 +21,11 @@ public class UserController {
     private final UserService userService;
     private final ProductRequestService productRequestService;
 
-    @GetMapping("/login")
-    public String login(Principal principal, Model model) {
-        model.addAttribute("user", userService.getUserByPrincipal(principal));
-        return "login";
-    }
+//    @GetMapping("/login")
+//    public String login(Principal principal, Model model) {
+//        model.addAttribute("user", userService.getUserByPrincipal(principal));
+//        return "login";
+//    }
     @GetMapping("/my/requests")
     public String myRequests(Principal principal, Model model) {
         User user = userService.getUserByPrincipal(principal);
@@ -49,20 +49,32 @@ public class UserController {
         }
         return "verify-result"; // Create a template for this view
     }
-    @GetMapping("/profile")
-    public String profile(Principal principal,
-                          Model model) {
-        User user = userService.getUserByPrincipal(principal);
-        model.addAttribute("user", user);
-        return "profile";
-    }
+//    @GetMapping("/profile")
+//    public String profile(Principal principal,
+//                          Model model) {
+//        User user = userService.getUserByPrincipal(principal);
+//        model.addAttribute("user", user);
+//        return "profile";
+//    }
 
     @GetMapping("/registration")
     public String registration(Principal principal, Model model) {
         model.addAttribute("user", userService.getUserByPrincipal(principal));
         return "registration";
     }
+    @GetMapping("/login")
+    public String login(Principal principal, Model model) {
+        model.addAttribute("user", userService.getUserByPrincipal(principal));
+        return "login";
+    }
 
+    // ... other methods ...
+
+    @GetMapping("/profile")
+    public String profile(Principal principal, Model model) {
+        model.addAttribute("user", userService.getUserByPrincipal(principal));
+        return "profile";
+    }
 
     @PostMapping("/registration")
     public String createUser(User user, Model model) {
