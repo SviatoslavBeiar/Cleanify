@@ -2,21 +2,33 @@ package com.example.cleaning.controllers;
 
 import com.example.cleaning.exceptions.TimeSlotAlreadyBookedException;
 import com.example.cleaning.models.Product;
+import com.example.cleaning.models.ProductRequest;
 import com.example.cleaning.models.User;
 import com.example.cleaning.services.*;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -37,6 +49,8 @@ public class ProductController {
     private PayPalService payPalService;
     @Autowired
     private MailSenderService mailSenderService;
+    @Autowired
+    private JavaMailSenderImpl mailSender;
 
 
     @GetMapping("/product/{id}/booked-times")
@@ -224,56 +238,51 @@ public class ProductController {
                 String apartmentSize = (String) session.getAttribute("apartmentSize");
                 String address = (String) session.getAttribute("address");
 
-                // Create the ProductRequest
-                productRequestService.createRequest(
+                // Capture the created ProductRequest
+                ProductRequest requestEntity = productRequestService.createRequest(
                         id, selectedDate, selectedTimeWindow, apartmentSize, address, principal);
 
-                // Clear session attributes
-                session.removeAttribute("selectedDate");
-                session.removeAttribute("selectedTimeWindow");
-                session.removeAttribute("apartmentSize");
-                session.removeAttribute("address");
-                session.removeAttribute("productId");
+                // Generate the completion URL using the token
+                String completionUrl = "http://localhost:8080/complete/" + requestEntity.getCompletionToken();
 
+                // Generate QR code
+                ByteArrayOutputStream qrCodeStream = new ByteArrayOutputStream();
+                QRCodeWriter qrCodeWriter = new QRCodeWriter();
+                BitMatrix bitMatrix = qrCodeWriter.encode(completionUrl, BarcodeFormat.QR_CODE, 200, 200);
+                MatrixToImageWriter.writeToStream(bitMatrix, "PNG", qrCodeStream);
+                byte[] qrCodeBytes = qrCodeStream.toByteArray();
+
+                // Prepare and send the email
                 if (principal != null) {
                     User user = userService.getUserByPrincipal(principal);
                     model.addAttribute("user", user);
 
-                    // Prepare email details
                     String recipientEmail = user.getEmail();
                     String subject = "Payment Confirmation for \"" + productService.getProductById(id).getTitle() + "\"";
 
-                    // Fetch product details
                     Product product = productService.getProductById(id);
 
                     String htmlContent = String.format(
                             "<html>"
-                                    + "<body style='font-family: Arial, sans-serif; color: #333; background-color: #f9f9f9; padding: 20px;'>"
-                                    + "<div style='max-width: 600px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);'>"
-                                    + "<h2 style='color: #4CAF50; text-align: center;'>Payment Successful!</h2>"
-                                    + "<p style='font-size: 16px;'>Dear %s,</p>"
-                                    + "<p style='font-size: 16px; line-height: 1.6;'>"
-                                    + "Thank you for your payment for the service <strong>\"%s\"</strong>."
-                                    + "</p>"
-                                    + "<h3 style='color: #4CAF50; border-bottom: 1px solid #ddd; padding-bottom: 5px;'>Details:</h3>"
-                                    + "<ul style='list-style-type: none; padding: 0; font-size: 16px; line-height: 1.6;'>"
+                                    + "<body style='font-family: Arial, sans-serif; color: #333;'>"
+                                    + "<h2>Payment Successful!</h2>"
+                                    + "<p>Dear %s,</p>"
+                                    + "<p>Thank you for your payment for the service <strong>\"%s\"</strong>.</p>"
+                                    + "<h3>Details:</h3>"
+                                    + "<ul>"
                                     + "<li><strong>Service Name:</strong> %s</li>"
                                     + "<li><strong>Date:</strong> %s</li>"
                                     + "<li><strong>Time:</strong> %s</li>"
                                     + "<li><strong>Apartment Size:</strong> %s</li>"
                                     + "<li><strong>Address:</strong> %s</li>"
                                     + "</ul>"
-                                    + "<p style='font-size: 16px; line-height: 1.6;'>"
-                                    + "If you have any questions, please feel free to contact our support team."
-                                    + "</p>"
-                                    + "<p style='margin-top: 20px; font-size: 16px; line-height: 1.6;'>"
-                                    + "Best regards,<br>"
-                                    + "<strong>Your Support Team</strong>"
-                                    + "</p>"
-                                    + "</div>"
+                                    + "<p>Please present this QR code to the worker:</p>"
+                                    + "<img src=\"cid:qrCodeImage\" alt=\"QR Code\" />"
+                                    + "<p>If you have any questions, please feel free to contact our support team.</p>"
+                                    + "<p>Best regards,<br>Your Support Team</p>"
                                     + "</body>"
                                     + "</html>",
-                            user.getName(), // Assuming User has getFirstName()
+                            user.getName(),
                             product.getTitle(),
                             product.getTitle(),
                             selectedDate,
@@ -283,21 +292,38 @@ public class ProductController {
                     );
 
                     try {
-                        mailSenderService.sendHtmlEmail(recipientEmail, subject, htmlContent);
+                        MimeMessage message = mailSender.createMimeMessage();
+                        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+                        helper.setTo(recipientEmail);
+                        helper.setSubject(subject);
+                        helper.setText(htmlContent, true);
+
+                        // Add QR code as inline image
+                        helper.addInline("qrCodeImage", new ByteArrayResource(qrCodeBytes), "image/png");
+
+                        mailSender.send(message);
                     } catch (MessagingException e) {
                         e.printStackTrace();
-                        // Optionally, handle the exception (e.g., log it, notify admin, etc.)
                     }
                 }
 
-                return "success"; // Return the name of the success template (e.g., success.html)
+                // Clear session attributes
+                session.removeAttribute("selectedDate");
+                session.removeAttribute("selectedTimeWindow");
+                session.removeAttribute("apartmentSize");
+                session.removeAttribute("address");
+                session.removeAttribute("productId");
+
+                return "success";
             }
-        } catch (PayPalRESTException | TimeSlotAlreadyBookedException e) {
+        } catch (PayPalRESTException | TimeSlotAlreadyBookedException | WriterException | IOException e) {
             e.printStackTrace();
-            // Optionally, add error handling (e.g., redirect to an error page)
         }
         return "redirect:/";
     }
+
+
 
     @GetMapping("/product/{id}/pay/cancel")
     public String cancelPay(@PathVariable Long id, HttpServletRequest request, Model model,Principal principal) {

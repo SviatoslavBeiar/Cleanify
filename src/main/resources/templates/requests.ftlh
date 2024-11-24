@@ -17,6 +17,7 @@
                 <th>End Time</th>
                 <th>Request Creation Date</th>
                 <th>Status</th>
+                <th>Completed</th> <!-- Новый столбец -->
                 <th>Distance from Base</th>
                 <th>Duration from Base</th>
                 <th>Actions</th>
@@ -44,6 +45,13 @@
                             <span class="badge badge-danger">Rejected</span>
                         </#if>
                     </td>
+                    <td>
+                        <#if request.completed>
+                            <span class="badge badge-completed">Completed</span>
+                        <#else>
+                            <span class="badge badge-secondary">Not Completed</span>
+                        </#if>
+                    </td>
                     <td id="distance-${request.id}">Loading...</td>
                     <td id="duration-${request.id}">Loading...</td>
                     <td>
@@ -55,6 +63,11 @@
                             <form action="/admin/requests/reject/${request.id}" method="post" style="display:inline;">
                                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
                                 <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                            </form>
+                        <#elseif request.status == "APPROVED" && !request.completed>
+                            <form action="/admin/requests/complete/${request.id}" method="post" style="display:inline;">
+                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+                                <button type="submit" class="btn btn-primary btn-sm">Mark as Completed</button>
                             </form>
                         <#else>
                             <span class="text-muted">No actions available</span>
@@ -80,13 +93,16 @@
                     <span class="legend-icon" style="background-color: green;"></span>
                     Approved Request
                 </li>
-<#--                <li>-->
-<#--                    <span class="legend-icon" style="background-color: red;"></span>-->
-<#--                    Other Request-->
-<#--                </li>-->
+                <li>
+                    <span class="legend-icon" style="background-color: purple;"></span>
+                    Completed Request
+                </li>
+                <li>
+                    <span class="legend-icon" style="background-color: red;"></span>
+                    Other Request
+                </li>
             </ul>
         </div>
-
 
         <!-- Карта -->
         <div id="map" style="width: 100%; height: 600px; margin-bottom: 50px; border: 1px solid #ddd; border-radius: 5px;"></div>
@@ -94,7 +110,16 @@
 
     <!-- Дополнительные стили -->
     <style>
-
+        .badge-completed {
+            background-color: purple;
+            color: white;
+        }
+        .legend-icon {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            margin-right: 5px;
+        }
     </style>
 
     <!-- Подготовка данных адресов -->
@@ -106,7 +131,8 @@
                 address: "${request.address}",
                 status: "${request.status}",
                 formattedSelectedDate: "${request.formattedSelectedDate}",
-                formattedSelectedTime: "${request.formattedSelectedTime}"
+                formattedSelectedTime: "${request.formattedSelectedTime}",
+                completed: ${request.completed?c}
             }<#if request_has_next>,</#if>
             </#list>
         ];
@@ -236,7 +262,8 @@
                                 position: location,
                                 status: request.status,
                                 date: request.formattedSelectedDate,
-                                time: request.formattedSelectedTime
+                                time: request.formattedSelectedTime,
+                                completed: request.completed
                             });
                             addClientMarker(request);
                             resolve();
@@ -286,7 +313,9 @@
 
             // Устанавливаем цвет маркера
             var markerColor;
-            if (request.status === "APPROVED" && isToday) {
+            if (request.completed) {
+                markerColor = "http://maps.google.com/mapfiles/ms/icons/purple-dot.png";
+            } else if (request.status === "APPROVED" && isToday) {
                 markerColor = "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
             } else if (request.status === "APPROVED" && !isToday) {
                 markerColor = "http://maps.google.com/mapfiles/ms/icons/green-dot.png";
@@ -307,7 +336,8 @@
                 content: '<strong>' + request.id + '. ' + request.address + '</strong><br>' +
                     'Status: ' + request.status + '<br>' +
                     'Date: ' + request.formattedSelectedDate + '<br>' +
-                    'Time: ' + request.formattedSelectedTime
+                    'Time: ' + request.formattedSelectedTime +
+                    (request.completed ? '<br>Completed: Yes' : '')
             });
 
             marker.addListener('click', function() {

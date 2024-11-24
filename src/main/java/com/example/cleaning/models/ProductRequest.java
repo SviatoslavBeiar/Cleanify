@@ -17,7 +17,9 @@ import java.time.format.DateTimeFormatter;
 public class ProductRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // ID запроса
+    private Long id;
+
+    private Boolean completed = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -27,15 +29,19 @@ public class ProductRequest {
 //    @JoinColumn(name = "product_id")
 //    private Product product; // Продукт, на который создан запрос
 
-    private LocalTime selectedTime; // Выбранное время
+    private LocalTime selectedTime;
 
-    private LocalDate selectedDate; // Выбранная дата
+    private LocalDate selectedDate;
+
+
+    private String completionToken;
+
+
 
     private LocalDate dateOfCreated;
     // Дата создания запроса
     @Enumerated(EnumType.STRING)
     private RequestStatus status = RequestStatus.PENDING; // Статус запроса (по умолчанию PENDING)
-    private boolean done = false;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;

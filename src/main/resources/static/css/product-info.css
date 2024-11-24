@@ -82,7 +82,35 @@
     animation: fadeInAnimation 0.5s ease-in-out;
 }
 
+
+
+
 @keyframes fadeInAnimation {
     0% { opacity: 0; transform: translateY(-10px); }
     100% { opacity: 1; transform: translateY(0); }
+}
+.paypal-button {
+    background: linear-gradient(270deg, #ff7e5f, #feb47b, #86a8e7, #91eae4);
+    background-size: 800% 800%;
+    animation: GradientAnimation 8s ease infinite;
+    border: none;
+    color: white;
+    transition: background 0.5s ease;
+    /* Дополнительные стили для улучшения внешнего вида */
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.paypal-button:disabled {
+    background: gray;
+    cursor: not-allowed;
+    animation: none; /* Останавливаем анимацию, когда кнопка отключена */
+}
+
+@keyframes GradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }

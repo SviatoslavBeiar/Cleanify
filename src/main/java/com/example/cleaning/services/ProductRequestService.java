@@ -16,10 +16,7 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -179,7 +176,7 @@ public class ProductRequestService {
     }
 
 
-    public void createRequest(Long productId, String date, String timeWindow, String apartmentSizeStr,String address, Principal principal) throws TimeSlotAlreadyBookedException {
+    public ProductRequest createRequest(Long productId, String date, String timeWindow, String apartmentSizeStr, String address, Principal principal) throws TimeSlotAlreadyBookedException {
         User user = userRepository.findByEmail(principal.getName());
         Product product = productRepository.findById(productId).orElse(null);
 
@@ -201,12 +198,22 @@ public class ProductRequestService {
                 request.setApartmentSize(apartmentSize);
                 request.setAddress(address);
                 request.setStatus(RequestStatus.APPROVED);
+
+                // Generate a unique completion token
+                String token = UUID.randomUUID().toString();
+                request.setCompletionToken(token);
+
                 productRequestRepository.save(request);
+
+                return request; // Return the created request
             } else {
                 throw new TimeSlotAlreadyBookedException("The selected time window is not available.");
             }
         }
+
+        throw new IllegalArgumentException("User or Product not found");
     }
+
 
     public List<String> getAvailableTimeWindows(Long productId, LocalDate date, double duration) {
         int totalTeams = 5; // Total available teams
@@ -285,6 +292,106 @@ public class ProductRequestService {
         }
 
         return totalTeams - maxTeamsBooked;
+    }
+    public boolean markAsCompletedByToken(String token) {
+        ProductRequest request = productRequestRepository.findByCompletionToken(token);
+        if (request != null && !Boolean.TRUE.equals(request.getCompleted())) {
+            request.setCompleted(true);
+            productRequestRepository.save(request);
+
+            // Optionally, send an email to the user about the completion
+            sendCompletionEmail(request);
+
+            return true;
+        }
+        return false;
+    }
+
+    private void sendCompletionEmail(ProductRequest request) {
+        String recipientEmail = request.getUser().getEmail();
+        String subject = "The work has been successfully completed: " + request.getProduct().getTitle();
+
+        String htmlContent = String.format(
+                "<html>"
+                        + "<body style='font-family: Arial, sans-serif; color: #333;'>"
+                        + "<h2>Your task has been successfully completed!</h2>"
+                        + "<p>Dear %s,</p>"
+                        + "<p>We are pleased to inform you that the task for your order <strong>\"%s\"</strong> has been successfully completed!</p>"
+                        + "<h3>Details:</h3>"
+                        + "<ul>"
+                        + "<li><strong>Service Name:</strong> %s</li>"
+                        + "<li><strong>Date:</strong> %s</li>"
+                        + "<li><strong>Time:</strong> %s</li>"
+                        + "</ul>"
+                        + "<p>Thank you for choosing us! If you have any questions, please contact our support team.</p>"
+                        + "<p>Best regards,<br>Your Support Team</p>"
+                        + "</body>"
+                        + "</html>",
+                request.getUser().getName(),
+                request.getProduct().getTitle(),
+                request.getProduct().getTitle(),
+                request.getSelectedDate().toString(),
+                request.getSelectedTime().toString()
+        );
+
+        try {
+            mailSenderService.sendHtmlEmail(recipientEmail, subject, htmlContent);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+    public void markAsCompleted(Long requestId) {
+        ProductRequest request = productRequestRepository.findById(requestId).orElse(null);
+        if (request != null && request.getStatus() == RequestStatus.APPROVED && !Boolean.TRUE.equals(request.getCompleted())) {
+            request.setCompleted(true);
+            productRequestRepository.save(request);
+
+            // Отправка письма о завершении работы
+            String recipientEmail = request.getUser().getEmail();
+            String subject = "The work has been successfully completed: " + request.getProduct().getTitle();
+
+            String htmlContent = String.format(
+                    "<html>"
+                            + "<body style='font-family: Arial, sans-serif; color: #333; background-color: #f9f9f9; padding: 20px;'>"
+                            + "<div style='max-width: 600px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);'>"
+                            + "<h2 style='color: #4CAF50; text-align: center;'>Your task has been successfully completed!</h2>"
+                            + "<p style='font-size: 16px;'>Dear Customer,</p>"
+                            + "<p style='font-size: 16px; line-height: 1.6;'>"
+                            + "We are pleased to inform you that the task for your order <strong>\"%s\"</strong> has been successfully completed!"
+                            + "</p>"
+                            + "<h3 style='color: #4CAF50; border-bottom: 1px solid #ddd; padding-bottom: 5px;'>Details:</h3>"
+                            + "<ul style='list-style-type: none; padding: 0; font-size: 16px; line-height: 1.6;'>"
+                            + "<li><strong>Service Name:</strong> %s</li>"
+                            + "<li><strong>Time:</strong> %s</li>"
+                            + "<li><strong>Date:</strong> %s</li>"
+                            + "</ul>"
+                            + "<p style='font-size: 16px; line-height: 1.6;'>"
+                            + "Thank you for choosing us! If you have any questions, please contact our support team."
+                            + "</p>"
+                            + "<p style='margin-top: 20px; font-size: 16px; line-height: 1.6;'>"
+                            + "Best regards,<br>"
+                            + "<strong>Your Support Team</strong>"
+                            + "</p>"
+                            + "</div>"
+                            + "</body>"
+                            + "</html>",
+                    request.getProduct().getTitle(),
+                    request.getProduct().getTitle(),
+                    request.getSelectedTime(),
+                    request.getSelectedDate()
+            );
+
+
+            try {
+                mailSenderService.sendHtmlEmail(recipientEmail, subject, htmlContent);
+            } catch (MessagingException e) {
+                e.printStackTrace();
+                // Рекомендуется добавить логирование ошибки
+            }
+        }
     }
 
 }

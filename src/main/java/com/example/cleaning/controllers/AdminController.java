@@ -43,7 +43,26 @@ public class AdminController {
         return "redirect:/my/products";
     }
 //////////////
-@PostMapping("/product/delete/{id}")
+
+
+    @PostMapping("/admin/requests/complete/{id}")
+    public String completeRequest(@PathVariable Long id) {
+        productRequestService.markAsCompleted(id);
+        return "redirect:/admin/requests";
+    }
+
+    @GetMapping("/complete/{token}")
+    public String completeByToken(@PathVariable String token, Model model, Principal principal) {
+        boolean success = productRequestService.markAsCompletedByToken(token);
+        model.addAttribute("success", success);
+        if (principal != null) {
+            User user = userService.getUserByPrincipal(principal);
+            model.addAttribute("user", user);
+        }
+        return "completion-confirmation"; // Шаблон подтверждения
+    }
+
+    @PostMapping("/product/delete/{id}")
 public String deleteProduct(@PathVariable Long id, Principal principal) {
     User user = userService.getUserByPrincipal(principal);
     productService.deleteProduct(user, id); // Используется softDelete

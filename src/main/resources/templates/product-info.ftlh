@@ -114,7 +114,7 @@
                                 <strong>Warning!</strong> The entered address is not within "${product.city}". Please enter an address within "${product.city}".
                             </div>
 
-                            <button type="submit" id="submitButton" class="btn btn-primary mt-3" disabled>Pay with PayPal</button>
+                            <button type="submit" id="submitButton" class="btn btn-primary mt-3 paypal-button" disabled>Pay with PayPal</button>
                         </form>
                         <div class="alert alert-success">
                             <strong>Testing Credit cards</strong>
