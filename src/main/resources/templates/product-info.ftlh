@@ -118,8 +118,8 @@
                         </form>
                         <div class="alert alert-success">
                             <strong>Testing Credit cards</strong>
-                            <div>Type: <strong>VISA</strong></div>
-                            <div>Card Number: <strong>4063335013352196</strong></div>
+                            <div>Type: <strong>Visa/Mastercard</strong></div>
+                            <div>Card Number: <strong></strong></div>
                             <div>Expiry: <strong>12/29</strong></div>
                             <div>CVC Code: <strong>Any 3 digits</strong></div>
                         </div>

@@ -87,7 +87,7 @@
                     <img src="/images/${product.previewImageId}" class="card-img-top" alt="${product.title}">
                     <div class="card-body">
                         <h5 class="card-title text-dark">${product.title}</h5>
-                        <p class="card-text text-muted">${product.price} ₽</p>
+                        <p class="card-text text-muted">${product.price}</p>
                     </div>
                     <div class="card-footer bg-transparent">
                         <small class="text-secondary">${product.city}</small>

@@ -9,6 +9,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByTitle(String title);
     List<Product> findByTitleAndDeletedFalse(String title);
     List<Product> findByDeletedFalse();
-    List<Product> findByDeletedTrue(); // Для администраторов
+    List<Product> findByDeletedTrue();
 
 }

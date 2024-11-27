@@ -44,6 +44,14 @@ public class ProductRequestService {
         durationMap.put(5, 3.0);
         return durationMap.getOrDefault(apartmentSize, 1.0);
     }
+    ///////
+    public void deleteRequest(Long requestId) {
+        if (!productRequestRepository.existsById(requestId)) {
+            throw new NoSuchElementException("Request not found with id: " + requestId);
+        }
+        productRequestRepository.deleteById(requestId);
+    }
+    ///////
     public void createRequest(Long productId, String date, String time, Principal principal) throws TimeSlotAlreadyBookedException {
         User user = userRepository.findByEmail(principal.getName());
         Product product = productRepository.findById(productId).orElse(null);

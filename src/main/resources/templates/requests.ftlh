@@ -1,11 +1,37 @@
 <#import "blocks/template.ftlh" as t>
 <@t.template user>
     <link rel="stylesheet" href="/static/css/requests.css">
+    <!-- Include Bootstrap CSS (if not already included in your base template) -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Include Font Awesome for icons (optional) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <div class="container my-5">
         <h2 class="mb-4">User Requests List</h2>
+
+        <!-- Flash Messages for Success and Error Notifications -->
+        <#if successMessage??>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                ${successMessage}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        </#if>
+
+        <#if errorMessage??>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                ${errorMessage}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        </#if>
+
         <table class="table table-bordered table-hover">
             <thead class="thead-dark">
             <tr>
+                <th>Delete</th> <!-- Moved Delete Column to the First Position -->
                 <th>Request ID</th>
                 <th>User ID</th>
                 <th>User Email</th>
@@ -17,7 +43,7 @@
                 <th>End Time</th>
                 <th>Request Creation Date</th>
                 <th>Status</th>
-                <th>Completed</th> <!-- Новый столбец -->
+                <th>Completed</th>
                 <th>Distance from Base</th>
                 <th>Duration from Base</th>
                 <th>Actions</th>
@@ -26,6 +52,39 @@
             <tbody>
             <#list requests as request>
                 <tr>
+                    <td>
+                        <!-- Delete Button Positioned to the Left -->
+                        <button type="button" class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#deleteModal-${request.id}" title="Delete Request">
+                            Delete <i class="fas fa-trash-alt"></i>
+                        </button>
+
+                        <!-- Delete Confirmation Modal -->
+                        <div class="modal fade" id="deleteModal-${request.id}" tabindex="-1" aria-labelledby="deleteModalLabel-${request.id}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <form action="/admin/requests/delete/${request.id}" method="post" onsubmit="return validateDeleteInput('${request.id}');">
+                                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="deleteModalLabel-${request.id}">Confirm Deletion</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>To confirm the deletion of Request ID <strong>${request.id}</strong>, please type <strong>DELETE</strong> in the field below.</p>
+                                            <div class="form-group">
+                                                <input type="text" class="form-control" id="confirmDelete-${request.id}" name="confirmDelete" placeholder="Type DELETE to confirm" required>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn btn-danger">Delete <i class="fas fa-trash-alt"></i></button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
                     <td>${request.id}</td>
                     <td>${request.user.id}</td>
                     <td>${request.user.email}</td>
@@ -55,19 +114,26 @@
                     <td id="distance-${request.id}">Loading...</td>
                     <td id="duration-${request.id}">Loading...</td>
                     <td>
+                        <!-- Actions (Approve, Reject, etc.) -->
                         <#if request.status == "PENDING">
                             <form action="/admin/requests/approve/${request.id}" method="post" style="display:inline;">
                                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
-                                <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                                <button type="submit" class="btn btn-success btn-sm" title="Approve Request">
+                                    <i class="fas fa-check"></i> Approve
+                                </button>
                             </form>
                             <form action="/admin/requests/reject/${request.id}" method="post" style="display:inline;">
                                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
-                                <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                                <button type="submit" class="btn btn-danger btn-sm" title="Reject Request">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
                             </form>
                         <#elseif request.status == "APPROVED" && !request.completed>
                             <form action="/admin/requests/complete/${request.id}" method="post" style="display:inline;">
                                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
-                                <button type="submit" class="btn btn-primary btn-sm">Mark as Completed</button>
+                                <button type="submit" class="btn btn-primary btn-sm" title="Mark as Completed">
+                                    <i class="fas fa-check-circle"></i> Mark as Completed
+                                </button>
                             </form>
                         <#else>
                             <span class="text-muted">No actions available</span>
@@ -77,6 +143,7 @@
             </#list>
             </tbody>
         </table>
+
         <!-- Map Legend -->
         <div id="map-legend" class="map-legend">
             <h5>Legend</h5>
@@ -104,11 +171,11 @@
             </ul>
         </div>
 
-        <!-- Карта -->
+        <!-- Map -->
         <div id="map" style="width: 100%; height: 600px; margin-bottom: 50px; border: 1px solid #ddd; border-radius: 5px;"></div>
     </div>
 
-    <!-- Дополнительные стили -->
+    <!-- Additional Styles -->
     <style>
         .badge-completed {
             background-color: purple;
@@ -122,7 +189,7 @@
         }
     </style>
 
-    <!-- Подготовка данных адресов -->
+    <!-- Preparing Address Data -->
     <script type="text/javascript">
         var requestData = [
             <#list requests as request>
@@ -137,7 +204,7 @@
             </#list>
         ];
 
-        // Статические базы
+        // Static Bases
         var staticBases = [
             {
                 address: "Natolin",
@@ -145,29 +212,29 @@
             },
             {
                 address: "Wierzbno",
-                name: "Cleaning Base Wierzbno "
+                name: "Cleaning Base Wierzbno"
             },
             {
                 address: "LAZARZ",
-                name: "Cleaning Base LAZARZ "
+                name: "Cleaning Base LAZARZ"
             }
         ];
     </script>
 
-    <!-- Инициализация карты и Distance Matrix -->
+    <!-- Initialize Map and Distance Matrix -->
     <script type="text/javascript">
         var map;
         var distanceService;
         var geocoder;
-        var baseLocations = []; // Для хранения координат баз
-        var clientLocations = []; // Для хранения координат клиентов
-        var infoWindow = new google.maps.InfoWindow(); // Один общий InfoWindow для полилиний
+        var baseLocations = []; // To store base coordinates
+        var clientLocations = []; // To store client coordinates
+        var infoWindow = new google.maps.InfoWindow(); // Shared InfoWindow for polylines
 
         function initMap() {
             geocoder = new google.maps.Geocoder();
             distanceService = new google.maps.DistanceMatrixService();
 
-            // Геокодируем базы и сохраняем их координаты
+            // Geocode bases and store their coordinates
             geocodeBases();
         }
 
@@ -177,12 +244,11 @@
                     geocoder.geocode({'address': base.address}, function(results, status) {
                         if (status === 'OK') {
                             var location = results[0].geometry.location;
-                            base.location = location; // Добавляем координаты в объект базы
+                            base.location = location; // Add coordinates to base object
                             baseLocations.push({
                                 name: base.name,
                                 position: location
                             });
-                            // Маркер баз добавляется позже после инициализации карты
                             resolve();
                         } else {
                             console.error('Geocoding failed for base address: ' + base.address + ' with status: ' + status);
@@ -194,7 +260,7 @@
 
             Promise.all(geocodePromises)
                 .then(function() {
-                    // После геокодирования всех баз, инициализируем карту
+                    // Initialize map after geocoding all bases
                     if (baseLocations.length > 0) {
                         map = new google.maps.Map(document.getElementById('map'), {
                             zoom: 10,
@@ -215,15 +281,13 @@
                             ]
                         });
 
-                        // Добавляем маркеры баз
+                        // Add base markers
                         baseLocations.forEach(function(base) {
                             addStaticBaseMarker(base);
                         });
 
-                        // Добавляем маркеры клиентов
+                        // Add client markers
                         geocodeClients();
-
-                        // Вычисляем расстояния после геокодирования клиентов
                     } else {
                         console.error('No base locations available to center the map.');
                     }
@@ -256,7 +320,7 @@
                     geocoder.geocode({'address': request.address}, function(results, status) {
                         if (status === 'OK') {
                             var location = results[0].geometry.location;
-                            request.location = location; // Добавляем координаты в объект запроса
+                            request.location = location; // Add coordinates to request object
                             clientLocations.push({
                                 id: request.id,
                                 position: location,
@@ -277,7 +341,7 @@
 
             Promise.all(geocodePromises)
                 .then(function() {
-                    // После геокодирования всех клиентов, вычисляем расстояния
+                    // Calculate distances after geocoding all clients
                     calculateDistances();
                 })
                 .catch(function(error) {
@@ -286,32 +350,32 @@
         }
 
         function addClientMarker(request) {
-            // Получаем текущую дату без времени
+            // Get today's date without time
             var today = new Date();
             today.setHours(0, 0, 0, 0);
 
-            // Парсим дату из request.formattedSelectedDate (формат 'dd.MM.yyyy')
+            // Parse date from request.formattedSelectedDate (format 'dd.MM.yyyy')
             var dateParts = request.formattedSelectedDate.split('.');
             if (dateParts.length !== 3) {
-                console.error('Неверный формат даты: ' + request.formattedSelectedDate);
+                console.error('Invalid date format: ' + request.formattedSelectedDate);
                 return;
             }
             var day = parseInt(dateParts[0], 10);
-            var month = parseInt(dateParts[1], 10) - 1; // Месяцы в JavaScript начинаются с 0
+            var month = parseInt(dateParts[1], 10) - 1; // Months in JavaScript start at 0
             var year = parseInt(dateParts[2], 10);
 
             if (isNaN(day) || isNaN(month) || isNaN(year)) {
-                console.error('Неверные значения даты: ' + request.formattedSelectedDate);
+                console.error('Invalid date values: ' + request.formattedSelectedDate);
                 return;
             }
 
             var requestDate = new Date(year, month, day);
             requestDate.setHours(0, 0, 0, 0);
 
-            // Сравниваем даты
+            // Compare dates
             var isToday = today.getTime() === requestDate.getTime();
 
-            // Устанавливаем цвет маркера
+            // Set marker color
             var markerColor;
             if (request.completed) {
                 markerColor = "http://maps.google.com/mapfiles/ms/icons/purple-dot.png";
@@ -323,7 +387,7 @@
                 markerColor = "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
             }
 
-            // Создаем маркер
+            // Create marker
             var marker = new google.maps.Marker({
                 map: map,
                 position: request.location,
@@ -331,7 +395,7 @@
                 title: request.id + '. ' + request.address
             });
 
-            // Инфо окно
+            // Info window
             var infowindow = new google.maps.InfoWindow({
                 content: '<strong>' + request.id + '. ' + request.address + '</strong><br>' +
                     'Status: ' + request.status + '<br>' +
@@ -364,7 +428,7 @@
                     var destinationAddresses = response.destinationAddresses;
                     var results = response.rows;
 
-                    // Создаем объект для хранения минимального расстояния и времени для каждого клиента
+                    // Object to store minimum distance and time for each client
                     var minDistances = {};
 
                     for (var i = 0; i < originAddresses.length; i++) {
@@ -380,7 +444,7 @@
                             var durationValue = element.duration.value;
                             var requestId = requestData[j].id;
 
-                            // Инициализируем объект, если еще не существует
+                            // Initialize object if not exists
                             if (!minDistances[requestId]) {
                                 minDistances[requestId] = {
                                     distanceText: distanceText,
@@ -390,7 +454,7 @@
                                     originIndex: i
                                 };
                             } else {
-                                // Обновляем, если текущий элемент имеет меньшее расстояние
+                                // Update if current element has smaller distance
                                 if (distanceValue < minDistances[requestId].distanceValue) {
                                     minDistances[requestId].distanceText = distanceText;
                                     minDistances[requestId].distanceValue = distanceValue;
@@ -402,7 +466,7 @@
                         }
                     }
 
-                    // Обновляем таблицу с минимальными расстояниями и временем
+                    // Update table with minimum distances and times
                     for (var requestId in minDistances) {
                         if (minDistances.hasOwnProperty(requestId)) {
                             var distanceCell = document.getElementById('distance-' + requestId);
@@ -413,7 +477,7 @@
                                 durationCell.innerText = minDistances[requestId].durationText;
                             }
 
-                            // Рисуем полилинию от выбранной базы до клиента с информацией при наведении
+                            // Draw polyline from selected base to client with info on hover
                             var originIndex = minDistances[requestId].originIndex;
                             var base = staticBases[originIndex];
                             var client = requestData.find(function(req) { return req.id === requestId; });
@@ -438,7 +502,7 @@
 
             polyline.setMap(map);
 
-            // Добавляем события для отображения InfoWindow при наведении
+            // Add events to display InfoWindow on hover
             polyline.addListener('mouseover', function(e) {
                 var infoContent = distanceText + " | " + durationText;
                 infoWindow.setContent(infoContent);
@@ -450,9 +514,20 @@
                 infoWindow.close();
             });
         }
+
+        // Function to validate delete input
+        function validateDeleteInput(requestId) {
+            var input = document.getElementById('confirmDelete-' + requestId).value;
+            if (input === 'DELETE') {
+                return true; // Proceed with form submission
+            } else {
+                alert('Please type "DELETE" to confirm the deletion.');
+                return false; // Prevent form submission
+            }
+        }
     </script>
 
-    <!-- Загрузка Google Maps API -->
+    <!-- Load Google Maps API -->
     <script async defer
             src="https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&callback=initMap">
     </script>

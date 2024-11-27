@@ -44,7 +44,13 @@ public class AdminController {
     }
 //////////////
 
-
+    ///////////
+@PostMapping("/admin/requests/delete/{id}")
+public String deleteRequest(@PathVariable Long id) {
+    productRequestService.deleteRequest(id);
+    return "redirect:/admin/requests";
+}
+///////
     @PostMapping("/admin/requests/complete/{id}")
     public String completeRequest(@PathVariable Long id) {
         productRequestService.markAsCompleted(id);
