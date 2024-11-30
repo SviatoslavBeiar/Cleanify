@@ -29,6 +29,15 @@
 - **QR Codes**: Generation and scanning of QR codes to confirm the completion of cleaning, providing convenience and security for users.
 - **Convenient Booking System with AJAX**: Implements a user-friendly booking system using AJAX, enabling seamless scheduling and management of cleaning requests without the need for full page reloads.
 - **Address Verification**: Validates user-provided addresses using Google Maps API and AJAX, ensuring accuracy and consistency in service locations.
+- **Map-Based Address Visualization**: Allows administrators to view all service addresses on an interactive map with status indicators:
+  - **Yellow**: Requests scheduled for today.
+  - **Blue**: Cleaning base locations.
+  - **Purple**: Completed requests.
+  - **Green**: Confirmed and paid requests.
+- **Admin Panel Enhancements**:
+  - **Role Management**: Easily assign and manage user roles.
+  - **User Management**: Ability to ban users.
+  - **Post/Offer Management with Soft Delete and Restoration**: Soft delete posts/offers to deactivate them without permanent removal, and restore them as needed to maintain data integrity and flexibility.
 ---
 
 ## Technologies Used
