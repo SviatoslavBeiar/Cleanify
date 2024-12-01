@@ -31,10 +31,6 @@ public class ProductRequestService {
         return productRequestRepository.findAllByUser(user);
     }
 
-    public boolean isTimeSlotAvailable(Long productId, LocalDate date, LocalTime time) {
-        return !productRequestRepository.existsByProductIdAndSelectedDateAndSelectedTimeAndStatus(
-                productId, date, time, RequestStatus.APPROVED);
-    }
     public double getCleaningDuration(int apartmentSize) {
         Map<Integer, Double> durationMap = new HashMap<>();
         durationMap.put(1, 1.0);
@@ -44,37 +40,13 @@ public class ProductRequestService {
         durationMap.put(5, 3.0);
         return durationMap.getOrDefault(apartmentSize, 1.0);
     }
-    ///////
+
     public void deleteRequest(Long requestId) {
         if (!productRequestRepository.existsById(requestId)) {
             throw new NoSuchElementException("Request not found with id: " + requestId);
         }
         productRequestRepository.deleteById(requestId);
     }
-    ///////
-    public void createRequest(Long productId, String date, String time, Principal principal) throws TimeSlotAlreadyBookedException {
-        User user = userRepository.findByEmail(principal.getName());
-        Product product = productRepository.findById(productId).orElse(null);
-
-        if (user != null && product != null) {
-            LocalDate selectedDate = LocalDate.parse(date);
-            LocalTime selectedTime = LocalTime.parse(time, DateTimeFormatter.ofPattern("HH:mm"));
-
-            if (isTimeSlotAvailable(productId, selectedDate, selectedTime)) {
-                ProductRequest request = new ProductRequest();
-                request.setUser(user);
-                request.setProduct(product);
-                request.setSelectedDate(selectedDate);
-                request.setSelectedTime(selectedTime);
-
-                productRequestRepository.save(request);
-            } else {
-                throw new TimeSlotAlreadyBookedException("The selected time slot is already booked.");
-            }
-        }
-    }
-
-
 
 
     public void approveRequest(Long requestId) {
@@ -155,7 +127,7 @@ public class ProductRequestService {
 
 
     public boolean isTimeWindowAvailable(Long productId, LocalDate date, LocalTime startTime, LocalTime endTime) {
-        int totalTeams = 5; // Total available teams
+        int totalTeams = 5;  // Total available teams
 
         // Get all approved requests for the date
         List<ProductRequest> requests = productRequestRepository.findAllByProductIdAndSelectedDateAndStatus(
@@ -357,7 +329,6 @@ public class ProductRequestService {
             request.setCompleted(true);
             productRequestRepository.save(request);
 
-            // Отправка письма о завершении работы
             String recipientEmail = request.getUser().getEmail();
             String subject = "The work has been successfully completed: " + request.getProduct().getTitle();
 
@@ -397,7 +368,7 @@ public class ProductRequestService {
                 mailSenderService.sendHtmlEmail(recipientEmail, subject, htmlContent);
             } catch (MessagingException e) {
                 e.printStackTrace();
-                // Рекомендуется добавить логирование ошибки
+                // log
             }
         }
     }

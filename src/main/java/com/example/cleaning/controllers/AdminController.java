@@ -30,27 +30,20 @@ public class AdminController {
     private final ProductService productService;
     @Value("${google.maps.api.key}")
     private String googleMapsApiKey;
-/////////////
-//    @PostMapping("/product/delete/{id}")
-//        public String deleteProduct(@PathVariable Long id, Principal principal) {
-//        productService.deleteProduct(productService.getUserByPrincipal(principal), id);
-//        return "redirect:/my/products";
-//    }
+
     @PostMapping("/product/create")
     public String createProduct(@RequestParam("file1") MultipartFile file1, @RequestParam("file2") MultipartFile file2,
                                 @RequestParam("file3") MultipartFile file3, Product product, Principal principal) throws IOException {
         productService.saveProduct(principal, product, file1, file2, file3);
         return "redirect:/my/products";
     }
-//////////////
 
-    ///////////
-@PostMapping("/admin/requests/delete/{id}")
-public String deleteRequest(@PathVariable Long id) {
-    productRequestService.deleteRequest(id);
-    return "redirect:/admin/requests";
-}
-///////
+    @PostMapping("/admin/requests/delete/{id}")
+    public String deleteRequest(@PathVariable Long id) {
+        productRequestService.deleteRequest(id);
+        return "redirect:/admin/requests";
+    }
+
     @PostMapping("/admin/requests/complete/{id}")
     public String completeRequest(@PathVariable Long id) {
         productRequestService.markAsCompleted(id);
@@ -68,26 +61,26 @@ public String deleteRequest(@PathVariable Long id) {
         return "completion-confirmation"; // Шаблон подтверждения
     }
 
-    @PostMapping("/product/delete/{id}")
-public String deleteProduct(@PathVariable Long id, Principal principal) {
-    User user = userService.getUserByPrincipal(principal);
-    productService.deleteProduct(user, id); // Используется softDelete
-    return "redirect:/my/products";
-}
+        @PostMapping("/product/delete/{id}")
+    public String deleteProduct(@PathVariable Long id, Principal principal) {
+        User user = userService.getUserByPrincipal(principal);
+        productService.deleteProduct(user, id); // Используется softDelete
+        return "redirect:/my/products";
+    }
     @PostMapping("/product/restore/{id}")
     public String restoreProduct(@PathVariable Long id) {
         productService.restoreProduct(id);
         return "redirect:/my/products";
     }
 
-    // Метод для отображения всех продуктов (включая удаленные)
+
     @GetMapping("/admin/products")
     public String viewAllProducts(Model model, Principal principal) {
         model.addAttribute("user", userService.getUserByPrincipal(principal));
         model.addAttribute("products", productService.listAllProducts());
         return "admin-products"; // Создайте этот шаблон
     }
-    // Метод для одобрения запроса
+
     @PostMapping("/admin/requests/approve/{id}")
     public String approveRequest(@PathVariable Long id) {
         productRequestService.approveRequest(id);
@@ -100,13 +93,14 @@ public String deleteProduct(@PathVariable Long id, Principal principal) {
         productRequestService.rejectRequest(id);
         return "redirect:/admin/requests";
     }
+
     @GetMapping("/admin")
     public String admin(Model model, Principal principal) {
         model.addAttribute("users", userService.list());
         model.addAttribute("user", userService.getUserByPrincipal(principal));
         return "admin";
     }
-    // Отображение всех запросов
+
     @GetMapping("/admin/requests")
     public String viewRequests(Model model, Principal principal) {
         model.addAttribute("user", userService.getUserByPrincipal(principal));
@@ -114,6 +108,7 @@ public String deleteProduct(@PathVariable Long id, Principal principal) {
         model.addAttribute("googleMapsApiKey", googleMapsApiKey);
         return "requests";
     }
+
     @PostMapping("/admin/user/ban/{id}")
     public String userBan(@PathVariable("id") Long id) {
         userService.banUser(id);

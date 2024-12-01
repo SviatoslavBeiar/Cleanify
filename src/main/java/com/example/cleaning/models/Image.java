@@ -15,8 +15,7 @@ public class Image {
     private boolean previewImage;
     @Lob
     private byte[] bytes;
-//    @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
-//    private Product product;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)

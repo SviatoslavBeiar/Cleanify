@@ -6,6 +6,4 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface ImageRepository extends JpaRepository<Image, Long> {
 
-    @Transactional
-    void deleteByProductId(Long productId);
 }

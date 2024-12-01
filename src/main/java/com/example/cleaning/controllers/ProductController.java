@@ -38,20 +38,19 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 public class ProductController {
-    @Autowired
+
     private final ProductService productService;
     private final UserService userService;
     private final CommentService commentService;
     private final ProductRequestService productRequestService;
+    private final PayPalService payPalService;
+    private final MailSenderService mailSenderService;
+    private final JavaMailSenderImpl mailSender;
+
     @Value("${google.maps.api.key}")
     private String googleMapsApiKey;
-    @Autowired
-    private PayPalService payPalService;
-    @Autowired
-    private MailSenderService mailSenderService;
-    @Autowired
-    private JavaMailSenderImpl mailSender;
-
+    @Value("${app.base-url}")
+    private String baseUrl;
 
     @GetMapping("/product/{id}/booked-times")
     @ResponseBody
@@ -60,13 +59,7 @@ public class ProductController {
         return productRequestService.getBookedTimes(id, selectedDate);
     }
 
-//    @GetMapping("/")
-//    public String products(@RequestParam(name = "searchWord", required = false) String title, Principal principal, Model model) {
-//        model.addAttribute("products", productService.listProducts(title));
-//        model.addAttribute("user", productService.getUserByPrincipal(principal));
-//        model.addAttribute("searchWord", title);
-//        return "products";
-//    }
+
     @GetMapping("/")
     public String products(@RequestParam(name = "searchWord", required = false) String title, Principal principal, Model model) {
         model.addAttribute("products", productService.listActiveProducts(title));
@@ -167,8 +160,8 @@ public class ProductController {
         try {
             Payment payment = payPalService.createPayment(cost, "PLN", "paypal",
                     "sale", "Cleaning Service Payment",
-                    "http://localhost:8080/product/" + id + "/pay/cancel",
-                    "http://localhost:8080/product/" + id + "/pay/success");
+                    baseUrl + "/product/" + id + "/pay/cancel",
+                    baseUrl +"/product/" + id + "/pay/success");
 
             for (Links link : payment.getLinks()) {
                 if (link.getRel().equals("approval_url")) {
@@ -182,45 +175,6 @@ public class ProductController {
         return "redirect:/";
     }
 
-
-
-//    @GetMapping("/product/{id}/pay/success")
-//    public String successPay(@PathVariable Long id,
-//                             @RequestParam("paymentId") String paymentId,
-//                             @RequestParam("PayerID") String payerId,
-//                             HttpServletRequest request,
-//                             Principal principal,
-//                             Model model) {
-//        try {
-//            Payment payment = payPalService.executePayment(paymentId, payerId);
-//            if (payment.getState().equals("approved")) {
-//                HttpSession session = request.getSession();
-//                String selectedDate = (String) session.getAttribute("selectedDate");
-//                String selectedTimeWindow = (String) session.getAttribute("selectedTimeWindow");
-//                String apartmentSize = (String) session.getAttribute("apartmentSize");
-//                String address = (String) session.getAttribute("address");
-//
-//                productRequestService.createRequest(id, selectedDate, selectedTimeWindow, apartmentSize, address, principal);
-//
-//                session.removeAttribute("selectedDate");
-//                session.removeAttribute("selectedTimeWindow");
-//                session.removeAttribute("apartmentSize");
-//                session.removeAttribute("address");
-//                session.removeAttribute("productId");
-//
-//                // Добавляем переменную 'user' в модель
-//                if (principal != null) {
-//                    User user = userService.getUserByPrincipal(principal);
-//                    model.addAttribute("user", user);
-//                }
-//
-//                return "success"; // Возвращаем название шаблона success.ftlh
-//            }
-//        } catch (PayPalRESTException | TimeSlotAlreadyBookedException e) {
-//            e.printStackTrace();
-//        }
-//        return "redirect:/";
-//    }
 
     @GetMapping("/product/{id}/pay/success")
     public String successPay(@PathVariable Long id,
@@ -341,8 +295,8 @@ public class ProductController {
             model.addAttribute("user", user);
         }
 
-        model.addAttribute("productId", id); // Добавляем productId в модель для использования в шаблоне
-        return "cancel"; // Возвращаем название шаблона cancel.ftlh
+        model.addAttribute("productId", id);
+        return "cancel";
     }
 
 

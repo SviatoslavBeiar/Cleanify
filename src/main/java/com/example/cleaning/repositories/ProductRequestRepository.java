@@ -10,13 +10,9 @@ import java.time.LocalTime;
 import java.util.List;
 
 public interface ProductRequestRepository extends JpaRepository<ProductRequest, Long> {
-
     List<ProductRequest> findAllByProductIdAndSelectedDateAndStatus(
             Long productId, LocalDate selectedDate, RequestStatus status);
-
     List<ProductRequest> findAllByUser(User user);
-
     boolean existsByProductIdAndSelectedDateAndSelectedTimeAndStatus(Long productId, LocalDate selectedDate, LocalTime selectedTime, RequestStatus status);
-    List<ProductRequest> findAllByCompleted(Boolean completed);
     ProductRequest findByCompletionToken(String completionToken);
 }

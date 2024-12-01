@@ -10,8 +10,6 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-
-import java.util.Collections;
 import java.util.UUID;
 
 @Service
@@ -31,10 +29,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         User user = userRepository.findByEmail(email);
         if (user == null) {
-            // Create a new user if not exist
+
             user = new User();
             user.setEmail(email);
-            user.setName(email); // Use email as name
+            user.setName(email);
             user.setActive(true);
             user.setEnabled(true);
             user.setPhoneNumber("null");
