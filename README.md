@@ -50,88 +50,87 @@ https://github.com/user-attachments/assets/ed620b52-4c40-486d-bede-e40e29f43258
 
 ### Backend
 
-- **Java 11**: The primary programming language used for backend development.
-- **Spring Boot 2.5.6**: A powerful framework that simplifies the development of Java-based applications, providing features like embedded servers and automatic configuration.
-- **Spring Data JPA**: Facilitates interaction with the MySQL database using the Java Persistence API, enabling seamless ORM (Object-Relational Mapping).
-- **Spring Security**: Provides comprehensive security features, including authentication and authorization mechanisms to protect the application.
-- **Hibernate**: An ORM tool used alongside Spring Data JPA for mapping Java classes to database tables.
-- **MySQL**: A reliable relational database management system used to store and manage application data.
-- **FreeMarker**: A versatile template engine for generating dynamic HTML content on the server side.
-- **Lombok**: Reduces boilerplate code in Java by automatically generating getters, setters, constructors, and other common methods through annotations.
-- **JUnit**: A widely-used testing framework for writing and executing unit tests in Java applications.
-- **Spring Boot Test**: Provides utilities and annotations to facilitate testing of Spring Boot applications.
+- **🟦 Java 11**: The primary programming language used for backend development.
+- **⚙️ Spring Boot 2.5.6**: A powerful framework that simplifies the development of Java-based applications, providing features like embedded servers and automatic configuration.
+- **💾 Spring Data JPA**: Facilitates interaction with the MySQL database using the Java Persistence API, enabling seamless ORM (Object-Relational Mapping).
+- **🔐 Spring Security**: Provides comprehensive security features, including authentication and authorization mechanisms to protect the application.
+- **📚 Hibernate**: An ORM tool used alongside Spring Data JPA for mapping Java classes to database tables.
+- **🗄️ MySQL**: A reliable relational database management system used to store and manage application data.
+- **📋 Lombok**: Reduces boilerplate code in Java by automatically generating getters, setters, constructors, and other common methods through annotations.
+- **✅ JUnit**: A widely-used testing framework for writing and executing unit tests in Java applications.
+- **🧪 Spring Boot Test**: Provides utilities and annotations to facilitate testing of Spring Boot applications.
 
 ### Frontend
 
-- **FreeMarker Templates**: For generating dynamic HTML on the server side.
-- **Bootstrap 4.5.2**: A responsive CSS framework that streamlines the development of mobile-first, visually appealing web interfaces.
-- **Font Awesome 6.4.0**: Provides a vast collection of icons to enhance the visual appeal and usability of the frontend.
-- **jQuery**: Simplifies DOM manipulation, event handling, and AJAX interactions on the client side.
-- **Google Maps JavaScript API**: Integrates interactive maps and geolocation functionalities to enhance user experience.
-- **AJAX**: Enables asynchronous communication between the client and server without full page reloads.
+- **🖼️ FreeMarker Templates**: For generating dynamic HTML on the server side.
+- **🌐 Bootstrap 4.5.2**: A responsive CSS framework that streamlines the development of mobile-first, visually appealing web interfaces.
+- **🎨 Font Awesome 6.4.0**: Provides a vast collection of icons to enhance the visual appeal and usability of the frontend.
+- **💡 jQuery**: Simplifies DOM manipulation, event handling, and AJAX interactions on the client side.
+- **🗺️ Google Maps JavaScript API**: Integrates interactive maps and geolocation functionalities to enhance user experience.
+- **📡 AJAX**: Enables asynchronous communication between the client and server without full page reloads.
 
 ---
 
 ## APIs
 
-### Google Maps API
+### 🌍Google Maps API
 
 Integrates interactive maps and geolocation functionalities to enhance user experience.
 
-- **Google Maps JavaScript API**: Renders interactive maps and handles map-related functionalities.
-  - [Documentation](https://developers.google.com/maps/documentation/javascript/overview)
-- **Google Geocoding API**: Converts addresses into geographic coordinates and vice versa.
-  - [Documentation](https://developers.google.com/maps/documentation/geocoding/start)
-- **Google Distance Matrix API**: Calculates travel distance and time between multiple locations.
-  - [Documentation](https://developers.google.com/maps/documentation/distance-matrix/start)
-- **Google Places API**: *(Potential Integration)* Provides detailed information about places, enabling features like autocomplete and place details.
-  - [Documentation](https://developers.google.com/maps/documentation/places/web-service/overview)
+- **📍 Google Maps JavaScript API**: Renders interactive maps and handles map-related functionalities.
+  - [📄 Documentation](https://developers.google.com/maps/documentation/javascript/overview)
+- **🗺️ Google Geocoding API**: Converts addresses into geographic coordinates and vice versa.
+  - [📄 Documentation](https://developers.google.com/maps/documentation/geocoding/start)
+- **🚗 Google Distance Matrix API**: Calculates travel distance and time between multiple locations.
+  - [📄 Documentation](https://developers.google.com/maps/documentation/distance-matrix/start)
+- **🔎 Google Places API**: *(Potential Integration)* Provides detailed information about places, enabling features like autocomplete and place details.
+  - [📄 Documentation](https://developers.google.com/maps/documentation/places/web-service/overview)
 
 ### PayPal API
 
 Facilitates secure payment processing within the application.
 
 - **PayPal REST API**: Enables integration of PayPal payment functionalities, including transaction management.
-  - [Documentation](https://developer.paypal.com/docs/api/overview/)
+  - [📄 Documentation](https://developer.paypal.com/docs/api/overview/)
 
 ### Google OAuth2 API
 
 Enables user authentication via Google accounts, enhancing security and user convenience.
 
 - **Authentication API**: Manages user sign-in and access control using Google credentials.
-  - [Documentation](https://developers.google.com/identity/protocols/oauth2)
+  - [📄 Documentation](https://developers.google.com/identity/protocols/oauth2)
 
 ---
 
 ## External Libraries
 
 - **ZXing (Zebra Crossing)**: Utilized for generating and decoding QR codes within the application.
-  - [GitHub Repository](https://github.com/zxing/zxing)
-  - [Documentation](https://github.com/zxing/zxing/wiki)
+  - [📄 GitHub Repository](https://github.com/zxing/zxing)
+  - [📄 Documentation](https://github.com/zxing/zxing/wiki)
   
 - **Font Awesome**: Provides a vast collection of icons to enhance the visual appeal and usability of the frontend.
-  - [Documentation](https://fontawesome.com/how-to-use)
+  - [📄 Documentation](https://fontawesome.com/how-to-use)
   
 - **Bootstrap 4.5.2**: A responsive CSS framework that streamlines the development of mobile-first, visually appealing web interfaces.
-  - [Documentation](https://getbootstrap.com/docs/4.5/getting-started/introduction/)
+  - [📄 Documentation](https://getbootstrap.com/docs/4.5/getting-started/introduction/)
   
 - **jQuery**: Simplifies DOM manipulation, event handling, and AJAX interactions on the client side.
-  - [Documentation](https://api.jquery.com/)
+  - [📄 Documentation](https://api.jquery.com/)
   
 - **Spring Mail**: Enables the application to send emails, such as notifications and confirmations, via SMTP servers.
-  - [Documentation](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-email)
+  - [📄 Documentation](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-email)
   
 - **Spring Boot Starter Test**: Provides a suite of testing utilities and libraries to ensure application reliability.
-  - [Documentation](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-testing)
+  - [📄 Documentation](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-testing)
   
 - **Spring Security Test**: Offers tools and annotations specifically designed for testing security-related components in Spring applications.
-  - [Documentation](https://docs.spring.io/spring-security/site/docs/current/reference/html5/#testing)
+  - [📄 Documentation](https://docs.spring.io/spring-security/site/docs/current/reference/html5/#testing)
   
 - **Project Lombok**: Enhances Java development by automating the creation of boilerplate code through annotations.
-  - [Documentation](https://projectlombok.org/features/all)
+  - [📄 Documentation](https://projectlombok.org/features/all)
   
 - **JUnit**: A foundational framework for writing and executing unit tests in Java, ensuring code quality and functionality.
-  - [Documentation](https://junit.org/junit4/)
+  - [📄 Documentation](https://junit.org/junit4/)
 
 ---
 
