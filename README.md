@@ -1,18 +1,19 @@
-# CleaningWebService
+# 🧹 CleaningWebService
 
 ## Table of Contents
-- [Video](#video)
-- [Description](#description)
-- [Technologies Used](#technologies-used)
-  - [Backend](#backend)
-  - [Frontend](#frontend)
-- [APIs](#apis)
-  - [Google Maps API](#google-maps-api)
-  - [PayPal API](#paypal-api)
-  - [Google OAuth2 API](#google-oauth2-api)
-- [External Libraries](#external-libraries)
-- [Configuration](#configuration)
-   - [Application Properties](#application-properties)
+- [🎥 Video](#video)
+- [📝 Description](#description)
+- [💻 Technologies Used](#technologies-used)
+  - [⚙️ Backend](#backend)
+  - [🖥️ Frontend](#frontend)
+- [🔗 APIs](#apis)
+  - [🗺️ Google Maps API](#google-maps-api)
+  - [💳 PayPal API](#paypal-api)
+  - [🔐 Google OAuth2 API](#google-oauth2-api)
+- [📚 External Libraries](#external-libraries)
+- [⚙️ Configuration](#configuration)
+   - [📑 Application Properties](#application-properties)
+
 
 ---
 
