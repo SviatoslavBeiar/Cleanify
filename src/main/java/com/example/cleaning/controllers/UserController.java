@@ -87,11 +87,11 @@ public class UserController {
     }
 
 
-    @GetMapping("/user/{user}")
-    public String userInfo(@PathVariable("user") User user, Model model, Principal principal) {
-        model.addAttribute("user", user);
-        model.addAttribute("userByPrincipal", userService.getUserByPrincipal(principal));
-        model.addAttribute("products", user.getProducts());
-        return "user-info";
-    }
+//    @GetMapping("/user/{user}")
+//    public String userInfo(@PathVariable("user") User user, Model model, Principal principal) {
+//        model.addAttribute("user", user);
+//        model.addAttribute("userByPrincipal", userService.getUserByPrincipal(principal));
+//        model.addAttribute("products", user.getProducts());
+//        return "user-info";
+//    }
 }
