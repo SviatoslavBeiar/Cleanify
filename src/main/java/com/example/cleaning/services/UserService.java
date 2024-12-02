@@ -5,6 +5,7 @@ import com.example.cleaning.models.enums.Role;
 import com.example.cleaning.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +25,9 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
+    @Value("${app.base-url}")
+    private String baseUrl;
+
     public boolean createUser(User user) {
         String email = user.getEmail();
         if (userRepository.findByEmail(email) != null) return false;
@@ -40,7 +44,7 @@ public class UserService {
         userRepository.save(user);
 
         // Send verification email
-        String siteURL = "http://localhost:8080"; // Replace with your site's URL
+        String siteURL = baseUrl; // Replace with your site's URL
         String verifyURL = siteURL + "/verify?code=" + verificationCode;
 
         try {
