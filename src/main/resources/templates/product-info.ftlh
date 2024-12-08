@@ -42,10 +42,10 @@
 
                 <!-- Seller contact information -->
                 <div class="contact-info text-container p-3 mb-4">
-                    <h5>Seller Contact Information</h5>
+                    <h5>Contact Information</h5>
                     <p>Name: <a>${authorProduct.name}</a></p>
                     <p>Phone: <b>${authorProduct.phoneNumber}</b></p>
-                    <a href="tel:${authorProduct.phoneNumber}" class="btn btn-primary">Call the Seller</a>
+                    <a href="tel:${authorProduct.phoneNumber}" class="btn btn-primary">Call</a>
                 </div>
             </div>
         </div>
@@ -64,6 +64,12 @@
                         <form action="/product/${product.id}/pay" method="post">
                             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
 
+                            <!-- Available Teams Info -->
+                            <div id="teamsInfo" style="font-weight: bold; background-color: #f8f9fa; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); margin-bottom: 20px;">
+                                <!-- Teams availability info will be displayed here -->
+                                Available Teams: <!-- Здесь отображается информация о доступных командах -->
+                            </div>
+
                             <!-- Apartment Size Selection -->
                             <div class="form-group">
                                 <label for="apartmentSize">Select Apartment Size:</label>
@@ -80,7 +86,8 @@
                             <!-- Date Selection -->
                             <div class="form-group">
                                 <label for="selectedDate">Select Date:</label>
-                                <input type="date" class="form-control" name="selectedDate" id="selectedDate" required>
+                                <input type="date" class="form-control" name="selectedDate" id="selectedDate" required min="${.now?string("yyyy-MM-dd")}">
+
                             </div>
 
                             <!-- Time Slots -->
@@ -89,11 +96,6 @@
                                 <div class="time-slots" id="timeSlots">
                                     <!-- Time slots will be dynamically loaded here -->
                                 </div>
-                            </div>
-
-                            <!-- Available Teams Info -->
-                            <div id="teamsInfo" style="position: absolute; bottom: 10px; right: 10px; font-weight: bold; background-color: #f8f9fa; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);">
-                                <!-- Teams availability info will be displayed here -->
                             </div>
 
                             <!-- Google Map Container -->
@@ -116,7 +118,7 @@
 
                             <button type="submit" id="submitButton" class="btn btn-primary mt-3 paypal-button" disabled>Pay with PayPal</button>
                         </form>
-                        <div class="alert alert-success">
+                        <div class="alert alert-success mt-4">
                             <strong>Testing Credit cards</strong>
                             <div>Type: <strong>Visa/Mastercard</strong></div>
                             <div>Card Number: <strong></strong></div>
@@ -128,8 +130,10 @@
                     <p>To create a request, please <a href="/login">log in</a>.</p>
                 </#if>
             </div>
+        </div>
 
-            <!-- Column for comments section -->
+
+        <!-- Column for comments section -->
             <div class="col-md-12">
                 <div class="comments-section text-container p-3">
                     <h3>Comments</h3>

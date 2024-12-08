@@ -25,36 +25,28 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
-    @Value("${app.base-url}")
-    private String baseUrl;
+  //  @Value("${app.base-url}")
+   // private String baseUrl;
 
-    public boolean createUser(User user) {
+
+    public User createUser(User user) {
         String email = user.getEmail();
-        if (userRepository.findByEmail(email) != null) return false;
+        if (userRepository.findByEmail(email) != null) {
+            return null;
+        }
         user.setActive(false);
         user.setEnabled(false);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.getRoles().add(Role.ROLE_USER);
 
-        // Generate verification code
+        // Генерація коду верифікації
         String verificationCode = UUID.randomUUID().toString();
         user.setVerificationCode(verificationCode);
 
-        log.info("Saving new User with email: {}", email);
+        log.info("Зберігаємо нового користувача з email: {}", email);
         userRepository.save(user);
 
-        // Send verification email
-        String siteURL = baseUrl; // Replace with your site's URL
-        String verifyURL = siteURL + "/verify?code=" + verificationCode;
-
-        try {
-            emailService.sendVerificationEmail(user.getEmail(), verifyURL);
-        } catch (MessagingException e) {
-            log.error("Error sending verification email", e);
-            return false;
-        }
-
-        return true;
+        return user;
     }
     public boolean verifyUser(String verificationCode) {
         User user = userRepository.findByVerificationCode(verificationCode);

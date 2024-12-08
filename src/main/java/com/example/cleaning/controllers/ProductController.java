@@ -22,6 +22,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -49,8 +50,8 @@ public class ProductController {
 
     @Value("${google.maps.api.key}")
     private String googleMapsApiKey;
-    @Value("${app.base-url}")
-    private String baseUrl;
+   // @Value("${app.base-url}")
+   // private String baseUrl;
 
     @GetMapping("/product/{id}/booked-times")
     @ResponseBody
@@ -140,6 +141,9 @@ public class ProductController {
     }
 
 
+
+
+
     @PostMapping("/product/{id}/pay")
     public String payForProduct(@PathVariable Long id,
                                 @RequestParam("selectedDate") String selectedDate,
@@ -157,11 +161,17 @@ public class ProductController {
         session.setAttribute("address", address);
         session.setAttribute("productId", id);
 
+        // Побудова базового URL динамічно
+        String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
+                .replacePath(null)
+                .build()
+                .toUriString();
+
         try {
             Payment payment = payPalService.createPayment(cost, "PLN", "paypal",
                     "sale", "Cleaning Service Payment",
                     baseUrl + "/product/" + id + "/pay/cancel",
-                    baseUrl +"/product/" + id + "/pay/success");
+                    baseUrl + "/product/" + id + "/pay/success");
 
             for (Links link : payment.getLinks()) {
                 if (link.getRel().equals("approval_url")) {
@@ -174,7 +184,6 @@ public class ProductController {
 
         return "redirect:/";
     }
-
 
     @GetMapping("/product/{id}/pay/success")
     public String successPay(@PathVariable Long id,
@@ -196,17 +205,23 @@ public class ProductController {
                 ProductRequest requestEntity = productRequestService.createRequest(
                         id, selectedDate, selectedTimeWindow, apartmentSize, address, principal);
 
-                // Generate the completion URL using the token
-                String completionUrl = "http://localhost:8080/complete/" + requestEntity.getCompletionToken();
+                // Побудова базового URL динамічно
+                String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
+                        .replacePath(null)
+                        .build()
+                        .toUriString();
 
-                // Generate QR code
+                // Generate the completion URL using the token
+                String completionUrl = baseUrl + "/complete/" + requestEntity.getCompletionToken();
+
+                // Генерація QR коду
                 ByteArrayOutputStream qrCodeStream = new ByteArrayOutputStream();
                 QRCodeWriter qrCodeWriter = new QRCodeWriter();
                 BitMatrix bitMatrix = qrCodeWriter.encode(completionUrl, BarcodeFormat.QR_CODE, 200, 200);
                 MatrixToImageWriter.writeToStream(bitMatrix, "PNG", qrCodeStream);
                 byte[] qrCodeBytes = qrCodeStream.toByteArray();
 
-                // Prepare and send the email
+                // Підготовка та відправка електронної пошти
                 if (principal != null) {
                     User user = userService.getUserByPrincipal(principal);
                     model.addAttribute("user", user);
@@ -253,7 +268,7 @@ public class ProductController {
                         helper.setSubject(subject);
                         helper.setText(htmlContent, true);
 
-                        // Add QR code as inline image
+                        // Додавання QR коду як вбудованого зображення
                         helper.addInline("qrCodeImage", new ByteArrayResource(qrCodeBytes), "image/png");
 
                         mailSender.send(message);
@@ -262,7 +277,7 @@ public class ProductController {
                     }
                 }
 
-                // Clear session attributes
+                // Очищення атрибутів сесії
                 session.removeAttribute("selectedDate");
                 session.removeAttribute("selectedTimeWindow");
                 session.removeAttribute("apartmentSize");
