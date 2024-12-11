@@ -1,14 +1,14 @@
 .login-container {
-    background-color: rgba(165, 188, 120, 0.7); /* Полупрозрачный белый фон */
-    background-image: url('/static/images/ricardo-milos2.gif'); /* Устанавливаем гифку как фон */
-    background-size: cover; /* Масштабируем фон для заполнения контейнера */
-    background-position: center; /* Центрируем фон */
-    background-repeat: no-repeat; /* Отключаем повтор фона */
-    border-radius: 10px; /* Закругленные углы */
-    padding: 30px; /* Внутренние отступы */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень */
-    max-width: 400px; /* Максимальная ширина */
-    margin: 50px auto; /* Центрирование */
+    background-color: rgba(165, 188, 120, 0.7);
+    background-image: url('/static/images/ricardo-milos2.gif');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    margin: 50px auto;
 }
 
 h1, h2 {

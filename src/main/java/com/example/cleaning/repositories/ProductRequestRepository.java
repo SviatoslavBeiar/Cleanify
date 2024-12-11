@@ -13,6 +13,6 @@ public interface ProductRequestRepository extends JpaRepository<ProductRequest, 
     List<ProductRequest> findAllByProductIdAndSelectedDateAndStatus(
             Long productId, LocalDate selectedDate, RequestStatus status);
     List<ProductRequest> findAllByUser(User user);
-    boolean existsByProductIdAndSelectedDateAndSelectedTimeAndStatus(Long productId, LocalDate selectedDate, LocalTime selectedTime, RequestStatus status);
+   // boolean existsByProductIdAndSelectedDateAndSelectedTimeAndStatus(Long productId, LocalDate selectedDate, LocalTime selectedTime, RequestStatus status);
     ProductRequest findByCompletionToken(String completionToken);
 }

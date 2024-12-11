@@ -66,7 +66,7 @@ public class ProductService {
         return productRepository.findById(id).orElse(null);
     }
 
-    // Метод для мягкого удаления продукта
+
     @Transactional
     public void softDeleteProduct(User user, Long id) {
         Product product = productRepository.findById(id).orElse(null);
@@ -105,7 +105,7 @@ public class ProductService {
         }
         return productRepository.findByDeletedFalse();
     }
-
+     @Transactional
     public void deleteProduct(User user, Long id) {
         softDeleteProduct(user, id);
     }

@@ -10,13 +10,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-
-
-
-// If you're using Spring Security 5.7 or higher, WebSecurityConfigurerAdapter is deprecated.
-// You should use the new configuration style with SecurityFilterChain.
-// For the sake of this example, we'll proceed with WebSecurityConfigurerAdapter.
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @EnableWebSecurity
@@ -44,7 +37,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .oauth2Login()
                 .loginPage("/login")
                 .userInfoEndpoint()
-                .userService(customOAuth2UserService) // Use custom OAuth2 user service
+                .userService(customOAuth2UserService)
                 .and()
                 .defaultSuccessUrl("/", true)
                 .and()

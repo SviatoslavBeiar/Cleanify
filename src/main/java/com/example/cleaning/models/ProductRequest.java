@@ -25,9 +25,7 @@ public class ProductRequest {
     @JoinColumn(name = "user_id")
     private User user; // Пользователь, создавший запрос
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "product_id")
-//    private Product product; // Продукт, на который создан запрос
+
 
     private LocalTime selectedTime;
 
@@ -41,7 +39,7 @@ public class ProductRequest {
     private LocalDate dateOfCreated;
     // Дата создания запроса
     @Enumerated(EnumType.STRING)
-    private RequestStatus status = RequestStatus.PENDING; // Статус запроса (по умолчанию PENDING)
+    private RequestStatus status = RequestStatus.PENDING;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;

@@ -11,9 +11,9 @@
 
 /* Semi-transparent container for text */
 .text-container {
-    background-color: rgba(255, 255, 255, 0.8); /* White with transparency */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Light shadow for emphasis */
-    border-radius: 10px; /* Rounded edges */
+    background-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
 }
 
 /* Increase padding within the container */

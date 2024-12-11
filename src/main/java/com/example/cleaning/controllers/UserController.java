@@ -28,11 +28,6 @@ public class UserController {
     private final ProductRequestService productRequestService;
     private final EmailService emailService;
 
-    //    @GetMapping("/login")
-//    public String login(Principal principal, Model model) {
-//        model.addAttribute("user", userService.getUserByPrincipal(principal));
-//        return "login";
-//    }
     @GetMapping("/my/requests")
     public String myRequests(Principal principal, Model model) {
         User user = userService.getUserByPrincipal(principal);
@@ -56,13 +51,6 @@ public class UserController {
         }
         return "verify-result"; // Create a template for this view
     }
-//    @GetMapping("/profile")
-//    public String profile(Principal principal,
-//                          Model model) {
-//        User user = userService.getUserByPrincipal(principal);
-//        model.addAttribute("user", user);
-//        return "profile";
-//    }
 
     @GetMapping("/registration")
     public String registration(Principal principal, Model model) {
@@ -75,7 +63,7 @@ public class UserController {
         return "login";
     }
 
-    // ... other methods ...
+
 
     @GetMapping("/profile")
     public String profile(Principal principal, Model model) {
@@ -112,11 +100,4 @@ public class UserController {
     }
 
 
-//    @GetMapping("/user/{user}")
-//    public String userInfo(@PathVariable("user") User user, Model model, Principal principal) {
-//        model.addAttribute("user", user);
-//        model.addAttribute("userByPrincipal", userService.getUserByPrincipal(principal));
-//        model.addAttribute("products", user.getProducts());
-//        return "user-info";
-//    }
 }
