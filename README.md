@@ -1,4 +1,5 @@
-# 🧹 CleaningWebService 
+# 🧹 Cleanify
+
 ----
 ## Table of Contents
 - [📝 Description](#description)
@@ -19,7 +20,7 @@
 
 ## Description
 
-**CleaningWebService** is a comprehensive web application designed to manage cleaning requests efficiently. It offers features such as user authentication, payment processing, geolocation services, and dynamic content generation. Leveraging a robust technology stack and various APIs, the application ensures a seamless and secure user experience.
+**Cleanify** is a comprehensive web application designed to manage cleaning requests efficiently. It offers features such as user authentication, payment processing, geolocation services, and dynamic content generation. Leveraging a robust technology stack and various APIs, the application ensures a seamless and secure user experience.
 
   The application offers the following features:
 
