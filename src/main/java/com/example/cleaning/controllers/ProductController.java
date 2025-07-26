@@ -95,7 +95,6 @@ public class ProductController {
         return "my-products";
     }
 
-    // In ProductController.java
 
     @GetMapping("/product/{id}/available-time-windows")
     @ResponseBody
@@ -125,7 +124,7 @@ public class ProductController {
             return "product-info";
         }
     }
-// В ProductController.java
+
 
     @GetMapping("/product/{id}/available-teams")
     @ResponseBody
