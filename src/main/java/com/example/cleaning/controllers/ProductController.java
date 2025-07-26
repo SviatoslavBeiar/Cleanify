@@ -200,11 +200,11 @@ public class ProductController {
                 String apartmentSize = (String) session.getAttribute("apartmentSize");
                 String address = (String) session.getAttribute("address");
 
-                // Capture the created ProductRequest
+              
                 ProductRequest requestEntity = productRequestService.createRequest(
                         id, selectedDate, selectedTimeWindow, apartmentSize, address, principal);
 
-                // Побудова базового URL динамічно
+              
                 String baseUrl = ServletUriComponentsBuilder.fromRequestUri(request)
                         .replacePath(null)
                         .build()
@@ -213,14 +213,13 @@ public class ProductController {
                 // Generate the completion URL using the token
                 String completionUrl = baseUrl + "/complete/" + requestEntity.getCompletionToken();
 
-                // Генерація QR коду
                 ByteArrayOutputStream qrCodeStream = new ByteArrayOutputStream();
                 QRCodeWriter qrCodeWriter = new QRCodeWriter();
                 BitMatrix bitMatrix = qrCodeWriter.encode(completionUrl, BarcodeFormat.QR_CODE, 200, 200);
                 MatrixToImageWriter.writeToStream(bitMatrix, "PNG", qrCodeStream);
                 byte[] qrCodeBytes = qrCodeStream.toByteArray();
 
-                // Підготовка та відправка електронної пошти
+          
                 if (principal != null) {
                     User user = userService.getUserByPrincipal(principal);
                     model.addAttribute("user", user);
@@ -267,7 +266,7 @@ public class ProductController {
                         helper.setSubject(subject);
                         helper.setText(htmlContent, true);
 
-                        // Додавання QR коду як вбудованого зображення
+                
                         helper.addInline("qrCodeImage", new ByteArrayResource(qrCodeBytes), "image/png");
 
                         mailSender.send(message);
